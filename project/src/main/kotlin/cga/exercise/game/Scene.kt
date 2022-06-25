@@ -23,6 +23,7 @@ import org.lwjgl.glfw.GLFW.*
 
 import org.lwjgl.opengl.GL30.*
 import kotlin.math.PI
+import kotlin.random.Random
 
 
 /**
@@ -56,6 +57,7 @@ class Scene(private val window: GameWindow) {
     val skybox = Skybox()
     val skyBoxFaces = arrayListOf<String>()
 
+    var testBoolean = true
 
 
 
@@ -175,6 +177,12 @@ class Scene(private val window: GameWindow) {
 
         pointLight.lightColor = Vector3f(abs(sin(t/3f)), abs(sin(t/4f)), abs(sin(t/2)))
         //pointLight.lightColor = Vector3f(0.5f * sin(t) + 0.5f,0.5f * sin(t - 2/3 * PI.toFloat()) + 0.5f, 0.5f * sin(t - 5/3 * PI.toFloat()) + 0.5f)
+        //val randomUpperCap = 25
+        //val randomLowerCap = 15
+        val norMovementSpeedFactor = 15
+        val accMovementSpeedFactor = 20
+        val revMovementSpeedFactor = 2
+        var movementSpeedFactor = 10
         when {
             window.getKeyState(GLFW_KEY_W) -> {
                 if (window.getKeyState(GLFW_KEY_A)) {
@@ -183,7 +191,18 @@ class Scene(private val window: GameWindow) {
                 if (window.getKeyState(GLFW_KEY_D)) {
                     cycle.rotateLocal(0f, 1.5f * -dt,0f)
                 }
-                cycle.translateLocal(Vector3f(0f, 0f, 15 * -dt))
+                if (window.getKeyState(GLFW_KEY_LEFT_SHIFT)) {
+                    cycle.translateLocal(Vector3f(0f, 0f, accMovementSpeedFactor * -dt))
+                    if (testBoolean) {
+                        cycle.translateLocal(Vector3f(accMovementSpeedFactor * -dt, 0f, 0f))
+                        testBoolean = false
+                    }
+                    else {
+                        cycle.translateLocal(Vector3f(accMovementSpeedFactor * dt, 0f, 0f))
+                        testBoolean = true
+                    }
+                }
+                else cycle.translateLocal(Vector3f(0f, 0f, movementSpeedFactor * -dt))
             }
             window.getKeyState(GLFW_KEY_S) -> {
                 if (window.getKeyState(GLFW_KEY_A)) {
@@ -192,7 +211,7 @@ class Scene(private val window: GameWindow) {
                 if (window.getKeyState(GLFW_KEY_D)) {
                     cycle.rotateLocal(0f, 1.5f * -dt,0f)
                 }
-                cycle.translateLocal(Vector3f(0f, 0f, 2f * dt))
+                cycle.translateLocal(Vector3f(0f, 0f, revMovementSpeedFactor * dt))
             }
         }
     }

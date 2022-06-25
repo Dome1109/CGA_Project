@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL30.*
 class Skybox {
 
     private var texID: Int = -1
+        private set
 
     private var skyBoxVao = 0
     private var skyBoxVbo = 0
@@ -76,6 +77,7 @@ class Skybox {
         GL20.glEnableVertexAttribArray(0)
         GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 12, 0)
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, skyboxIndices, GL15.GL_STATIC_DRAW)
+        // unbind
 
         GL30.glBindVertexArray(0)
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0)
@@ -96,6 +98,7 @@ class Skybox {
             var nrChannels = BufferUtils.createIntBuffer(1)
 
             STBImage.stbi_set_flip_vertically_on_load(true)
+
             val imageData = STBImage.stbi_load(faces[i], width, height, nrChannels, 4)
                 ?: throw Exception("Image file \"" + faces[i] + "\" couldn't be read:\n" + STBImage.stbi_failure_reason())
 
