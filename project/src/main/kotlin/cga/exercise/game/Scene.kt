@@ -159,7 +159,7 @@ class Scene(private val window: GameWindow) {
         pointLight.parent = cycle
         spotLight.parent = cycle
 
-        currentCamera = orthocamera
+        currentCamera = camera
     }
 
     fun render(dt: Float, t: Float) {
