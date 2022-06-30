@@ -57,7 +57,11 @@ class Scene(private val window: GameWindow) {
     val skybox = Skybox()
     val skyBoxFaces = arrayListOf<String>()
 
-    var testBoolean = true
+    var timeOut = false
+    var fuelInUse = false
+
+    val maxFuelAmount = 100f
+    var fuelAmount = maxFuelAmount
 
 
 
@@ -176,13 +180,16 @@ class Scene(private val window: GameWindow) {
     fun update(dt: Float, t: Float) {
 
         pointLight.lightColor = Vector3f(abs(sin(t/3f)), abs(sin(t/4f)), abs(sin(t/2)))
-        //pointLight.lightColor = Vector3f(0.5f * sin(t) + 0.5f,0.5f * sin(t - 2/3 * PI.toFloat()) + 0.5f, 0.5f * sin(t - 5/3 * PI.toFloat()) + 0.5f)
-        //val randomUpperCap = 25
-        //val randomLowerCap = 15
-        val norMovementSpeedFactor = 15
+
+        val norMovementSpeedFactor = 10
         val accMovementSpeedFactor = 20
         val revMovementSpeedFactor = 2
-        var movementSpeedFactor = 10
+
+
+
+        // end timeOut when fuel regeneration hits target
+        if (timeOut) if (fuelAmount > maxFuelAmount/4) timeOut = false
+
         when {
             window.getKeyState(GLFW_KEY_W) -> {
                 if (window.getKeyState(GLFW_KEY_A)) {
@@ -191,20 +198,21 @@ class Scene(private val window: GameWindow) {
                 if (window.getKeyState(GLFW_KEY_D)) {
                     cycle.rotateLocal(0f, 1.5f * -dt,0f)
                 }
-                if (window.getKeyState(GLFW_KEY_LEFT_SHIFT)) {
+                if (window.getKeyState(GLFW_KEY_LEFT_SHIFT)  && !timeOut) {
+                    fuelInUse = true
+                    fuelAmount -= 40 * dt
                     cycle.translateLocal(Vector3f(0f, 0f, accMovementSpeedFactor * -dt))
-                    if (testBoolean) {
-                        cycle.translateLocal(Vector3f(accMovementSpeedFactor * -dt, 0f, 0f))
-                        testBoolean = false
-                    }
-                    else {
-                        cycle.translateLocal(Vector3f(accMovementSpeedFactor * dt, 0f, 0f))
-                        testBoolean = true
-                    }
+
+
                 }
-                else cycle.translateLocal(Vector3f(0f, 0f, movementSpeedFactor * -dt))
+
+                else {
+                    fuelInUse = false
+                    cycle.translateLocal(Vector3f(0f, 0f, norMovementSpeedFactor * -dt))
+                }
             }
             window.getKeyState(GLFW_KEY_S) -> {
+                fuelInUse = false
                 if (window.getKeyState(GLFW_KEY_A)) {
                     cycle.rotateLocal(0f,1.5f * dt,0f)
                 }
@@ -213,6 +221,20 @@ class Scene(private val window: GameWindow) {
                 }
                 cycle.translateLocal(Vector3f(0f, 0f, revMovementSpeedFactor * dt))
             }
+        }
+
+        // start timOut when fuelAmount reaches (below) zero
+        if (fuelAmount <= 0) {
+            fuelAmount = 0f
+            timeOut = true
+        }
+
+        // fuel regeneration
+        if (!fuelInUse && fuelAmount < maxFuelAmount) {
+            fuelAmount += 10 * dt
+
+            if (fuelAmount > maxFuelAmount) fuelAmount = maxFuelAmount
+
         }
     }
 
