@@ -33,6 +33,7 @@ class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram
     private val tronShader: ShaderProgram
     private val skyBoxShader: ShaderProgram
+    private val monoChromeRed: ShaderProgram
 
     private var currentShader: ShaderProgram
 
@@ -70,7 +71,7 @@ class Scene(private val window: GameWindow) {
         staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
         tronShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
         skyBoxShader = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBox_frag.glsl")
-
+        monoChromeRed = ShaderProgram("assets/shaders/monoChromeRed_vert.glsl", "assets/shaders/monoChromeRed_frag.glsl")
         currentShader = tronShader
 
         skyBoxFaces.add("assets/textures/skybox/right.png")
@@ -178,6 +179,11 @@ class Scene(private val window: GameWindow) {
     }
 
     fun update(dt: Float, t: Float) {
+
+
+        if (window.getKeyState(GLFW_KEY_1)) currentShader = monoChromeRed
+        if (window.getKeyState(GLFW_KEY_2)) currentShader = tronShader
+
 
         pointLight.lightColor = Vector3f(abs(sin(t/3f)), abs(sin(t/4f)), abs(sin(t/2)))
 
