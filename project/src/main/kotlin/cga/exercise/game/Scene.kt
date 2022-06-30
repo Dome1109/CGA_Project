@@ -1,10 +1,9 @@
 package cga.exercise.game
 
+import cga.exercise.components.camera.ICamera
+import cga.exercise.components.camera.OrthoCamera
 import cga.exercise.components.camera.TronCamera
-import cga.exercise.components.geometry.Material
-import cga.exercise.components.geometry.Mesh
-import cga.exercise.components.geometry.Renderable
-import cga.exercise.components.geometry.VertexAttribute
+import cga.exercise.components.geometry.*
 import cga.exercise.components.light.PointLight
 import cga.exercise.components.light.SpotLight
 import cga.exercise.components.shader.ShaderProgram
@@ -46,7 +45,9 @@ class Scene(private val window: GameWindow) {
     val sphere: Renderable
     var cycle : Renderable
 
+    private var currentCamera : ICamera
     val camera = TronCamera()
+    val orthocamera = OrthoCamera()
 
     val pointLight : PointLight
     val spotLight: SpotLight
@@ -134,6 +135,9 @@ class Scene(private val window: GameWindow) {
         ground = Renderable(meshListGround)
         sphere = Renderable(meshListSphere)
 
+        orthocamera.rotateLocal(toRadians(-85f), 0f, 0f)
+        orthocamera.translateLocal(Vector3f(0f, 0f, 5f))
+
         camera.rotateLocal(Math.toRadians(-35f),0f, 0f)
         camera.translateLocal(Vector3f(0f, 0f, 4f))
         cycle = ModelLoader.loadModel("assets/light Cycle/light Cycle/HQ_Movie cycle.obj",
@@ -141,6 +145,8 @@ class Scene(private val window: GameWindow) {
 
         cycle.scaleLocal(Vector3f(0.8f))
         camera.parent = cycle
+
+        orthocamera.parent = cycle
 
         pointLight = PointLight(Vector3f(0f, 2f, 0f), Vector3f(1f, 1f, 0f),
                 Vector3f(1f, 0.5f, 0.1f))
@@ -153,18 +159,19 @@ class Scene(private val window: GameWindow) {
         pointLight.parent = cycle
         spotLight.parent = cycle
 
+        currentCamera = orthocamera
     }
 
     fun render(dt: Float, t: Float) {
 
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-        skybox.render(skyBoxShader, camera.getCalculateViewMatrix(), camera.getCalculateProjectionMatrix())
+        skybox.render(skyBoxShader, currentCamera.getCalculateViewMatrix(), currentCamera.getCalculateProjectionMatrix())
 
         currentShader.use()
-        camera.bind(currentShader)
+        currentCamera.bind(currentShader)
 
-        spotLight.bind(currentShader, "spot", camera.getCalculateViewMatrix())
+        spotLight.bind(currentShader, "spot", currentCamera.getCalculateViewMatrix())
         pointLight.bind(currentShader, "point")
 
 
@@ -184,6 +191,9 @@ class Scene(private val window: GameWindow) {
         if (window.getKeyState(GLFW_KEY_1)) currentShader = monoChromeRed
         if (window.getKeyState(GLFW_KEY_2)) currentShader = tronShader
 
+        if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
+
+        if (window.getKeyState(GLFW_KEY_R)) currentCamera = orthocamera
 
         pointLight.lightColor = Vector3f(abs(sin(t/3f)), abs(sin(t/4f)), abs(sin(t/2)))
 
