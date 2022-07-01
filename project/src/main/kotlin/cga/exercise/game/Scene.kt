@@ -22,7 +22,6 @@ import org.lwjgl.glfw.GLFW.*
 
 import org.lwjgl.opengl.GL30.*
 import kotlin.math.PI
-import kotlin.random.Random
 
 
 /**
@@ -31,19 +30,28 @@ import kotlin.random.Random
 class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram
     private val tronShader: ShaderProgram
-    private val skyBoxShader: ShaderProgram
     private val monoChromeRed: ShaderProgram
+
+    private val skyBoxShader: ShaderProgram
+    private val skyBoxShaderMono: ShaderProgram
+    private var currentSkyboxShader: ShaderProgram
+
+
+    private var shaderNumber = 2
 
     private var currentShader: ShaderProgram
 
     private val meshListSphere = mutableListOf<Mesh>()
     private val meshListGround = mutableListOf<Mesh>()
+    private val meshListUFO = mutableListOf<Mesh>()
     val bodenmatrix: Matrix4f = Matrix4f()
     val kugelMatrix: Matrix4f = Matrix4f()
 
     val ground: Renderable
     val sphere: Renderable
     var cycle : Renderable
+    var ufo : Renderable
+
 
     private var currentCamera : ICamera
     val camera = TronCamera()
@@ -72,7 +80,9 @@ class Scene(private val window: GameWindow) {
         staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
         tronShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
         skyBoxShader = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBox_frag.glsl")
+        skyBoxShaderMono = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxMono_frag.glsl")
         monoChromeRed = ShaderProgram("assets/shaders/monoChromeRed_vert.glsl", "assets/shaders/monoChromeRed_frag.glsl")
+        currentSkyboxShader = skyBoxShader
         currentShader = tronShader
 
         skyBoxFaces.add("assets/textures/skybox/right.png")
@@ -98,6 +108,8 @@ class Scene(private val window: GameWindow) {
         val objResGround : OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/ground.obj")
         val objMeshListGround : MutableList<OBJLoader.OBJMesh> = objResGround.objects[0].meshes
 
+
+
         val stride = 8 * 4
         val attrPos = VertexAttribute(3, GL_FLOAT, stride, 0)
         val attrTC = VertexAttribute(2, GL_FLOAT, stride, 3 * 4)
@@ -112,6 +124,7 @@ class Scene(private val window: GameWindow) {
         groundEmitTexture.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         groundDiffTexture.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
         groundSpecTexture.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+
 
         val groundShininess = 60f
         val groundTCMultiplier = Vector2f(64f)
@@ -135,6 +148,8 @@ class Scene(private val window: GameWindow) {
         ground = Renderable(meshListGround)
         sphere = Renderable(meshListSphere)
 
+
+
         orthocamera.rotateLocal(toRadians(-85f), 0f, 0f)
         orthocamera.translateLocal(Vector3f(0f, 0f, 5f))
 
@@ -143,8 +158,17 @@ class Scene(private val window: GameWindow) {
         cycle = ModelLoader.loadModel("assets/light Cycle/light Cycle/HQ_Movie cycle.obj",
                 toRadians(-90f), toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
+        ufo = ModelLoader.loadModel("assets/ufo/Low_poly_UFO.obj",
+            toRadians(180f), toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
+
         cycle.scaleLocal(Vector3f(0.8f))
         camera.parent = cycle
+
+
+        ufo.scaleLocal(Vector3f(0.1f))
+        ufo.translateLocal(Vector3f(0f, 40f, -50f))
+
+
 
         orthocamera.parent = cycle
 
@@ -166,7 +190,8 @@ class Scene(private val window: GameWindow) {
 
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-        skybox.render(skyBoxShader, currentCamera.getCalculateViewMatrix(), currentCamera.getCalculateProjectionMatrix())
+
+        skybox.render(currentSkyboxShader, currentCamera.getCalculateViewMatrix(), currentCamera.getCalculateProjectionMatrix())
 
         currentShader.use()
         currentCamera.bind(currentShader)
@@ -174,6 +199,7 @@ class Scene(private val window: GameWindow) {
         spotLight.bind(currentShader, "spot", currentCamera.getCalculateViewMatrix())
         pointLight.bind(currentShader, "point")
 
+        ufo.render(currentShader)
 
 
 
@@ -181,15 +207,22 @@ class Scene(private val window: GameWindow) {
         cycle.render(currentShader)
 
         currentShader.setUniform("farbe", Vector3f(0f,1f,0f))
-        ground.render(tronShader)
+        ground.render(currentShader)
 
     }
 
     fun update(dt: Float, t: Float) {
 
+        if (window.getKeyState(GLFW_KEY_L)) ufo.rotateLocal(1.5f * dt,0f,0f)
 
-        if (window.getKeyState(GLFW_KEY_1)) currentShader = monoChromeRed
-        if (window.getKeyState(GLFW_KEY_2)) currentShader = tronShader
+        if (window.getKeyState(GLFW_KEY_1)) {
+            currentShader = monoChromeRed
+            currentSkyboxShader = skyBoxShaderMono
+        }
+        if (window.getKeyState(GLFW_KEY_2)) {
+            currentShader = tronShader
+            currentSkyboxShader = skyBoxShader
+        }
 
         if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
 
