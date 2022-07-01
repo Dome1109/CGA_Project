@@ -66,7 +66,7 @@ class Scene(private val window: GameWindow) {
     var fuelAmount = maxFuelAmount
 
 
-
+    //schöne Grüße
     //scene setup
     init {
         staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
