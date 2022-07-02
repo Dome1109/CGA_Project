@@ -35,6 +35,7 @@ class Scene(private val window: GameWindow) {
 
     private val skyBoxShader: ShaderProgram
     private val skyBoxShaderMono: ShaderProgram
+    private val skyBoxShaderToon: ShaderProgram
     private var currentSkyboxShader: ShaderProgram
 
 
@@ -82,8 +83,10 @@ class Scene(private val window: GameWindow) {
         tronShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
         skyBoxShader = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBox_frag.glsl")
         skyBoxShaderMono = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxMono_frag.glsl")
+        skyBoxShaderToon = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxToon_frag.glsl")
         monoChromeRed = ShaderProgram("assets/shaders/monoChromeRed_vert.glsl", "assets/shaders/monoChromeRed_frag.glsl")
         toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon_frag.glsl")
+
         currentSkyboxShader = skyBoxShader
         currentShader = tronShader
 
@@ -228,7 +231,7 @@ class Scene(private val window: GameWindow) {
 
         if (window.getKeyState(GLFW_KEY_3)){
             currentShader = toonShader
-            currentSkyboxShader = skyBoxShader
+            currentSkyboxShader = skyBoxShaderToon
         }
 
         if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
