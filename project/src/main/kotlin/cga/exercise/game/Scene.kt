@@ -31,6 +31,7 @@ class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram
     private val tronShader: ShaderProgram
     private val monoChromeRed: ShaderProgram
+    private val toonShader: ShaderProgram
 
     private val skyBoxShader: ShaderProgram
     private val skyBoxShaderMono: ShaderProgram
@@ -82,6 +83,7 @@ class Scene(private val window: GameWindow) {
         skyBoxShader = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBox_frag.glsl")
         skyBoxShaderMono = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxMono_frag.glsl")
         monoChromeRed = ShaderProgram("assets/shaders/monoChromeRed_vert.glsl", "assets/shaders/monoChromeRed_frag.glsl")
+        toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon_frag.glsl")
         currentSkyboxShader = skyBoxShader
         currentShader = tronShader
 
@@ -221,6 +223,11 @@ class Scene(private val window: GameWindow) {
         }
         if (window.getKeyState(GLFW_KEY_2)) {
             currentShader = tronShader
+            currentSkyboxShader = skyBoxShader
+        }
+
+        if (window.getKeyState(GLFW_KEY_3)){
+            currentShader = toonShader
             currentSkyboxShader = skyBoxShader
         }
 
