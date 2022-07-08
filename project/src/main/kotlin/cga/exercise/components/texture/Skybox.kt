@@ -25,7 +25,7 @@ class Skybox {
 
     init {
 
-        var s = 1f
+        var s = 10f
 
         var skyboxVertices = floatArrayOf(
             // Positions
