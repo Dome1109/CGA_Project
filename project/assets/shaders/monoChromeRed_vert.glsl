@@ -10,12 +10,14 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec2 tcMultiplier;
 uniform vec3 pointLightPos;
+uniform vec3 pointLight2Pos;
 uniform vec3 spotLightPos;
 
 out struct VertexData
 {
     vec3 toCamera;
     vec3 toPointLight;
+        vec3 toPointLight2;
     vec3 toSpotLight;
     vec2 tc;
     vec3 normale;
@@ -34,6 +36,9 @@ void main(){
 
     vec4 lp = view * vec4(pointLightPos, 1.0);
     vertexData.toPointLight = (lp - modelViewPosition).xyz;
+
+    vec4 lp3 = view * vec4(pointLight2Pos, 1.0);
+    vertexData.toPointLight2 = (lp3 - modelViewPosition).xyz;
 
     vec4 lp2 = view * vec4(spotLightPos, 1.0);
     vertexData.toSpotLight = (lp2 - modelViewPosition).xyz;
