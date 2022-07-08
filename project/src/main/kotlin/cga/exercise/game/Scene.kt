@@ -9,7 +9,7 @@ import cga.exercise.components.light.DirectionalLight
 import cga.exercise.components.light.PointLight
 import cga.exercise.components.light.SpotLight
 import cga.exercise.components.shader.ShaderProgram
-import cga.exercise.components.texture.ShadowMap
+//import cga.exercise.components.texture.ShadowMap
 import cga.exercise.components.texture.Skybox
 import cga.exercise.components.texture.Texture2D
 import cga.framework.GLError
@@ -59,7 +59,7 @@ class Scene(private val window: GameWindow) {
     val saturn: Renderable
 
 
-    val shadowMap: ShadowMap
+//    val shadowMap: ShadowMap
 
     private var currentCamera : ICamera
     val camera = TronCamera()
@@ -105,7 +105,7 @@ class Scene(private val window: GameWindow) {
         currentSkyboxShader = skyBoxShader
         currentShader = tronShader
 
-        shadowMap = ShadowMap(Vector3f(-1f,0f,0f))
+//        shadowMap = ShadowMap(Vector3f(-1f,0f,0f))
 
         skyBoxFaces.add("assets/textures/skybox/right.png")
         skyBoxFaces.add("assets/textures/skybox/left.png")
@@ -218,7 +218,7 @@ class Scene(private val window: GameWindow) {
 
 
         currentShader.use()
-        shadowMap.setShadowUniforms(currentShader)
+//        shadowMap.setShadowUniforms(currentShader)
         if (blinn) currentShader.setUniform("blinn", 1)
         else currentShader.setUniform("blinn", 0)
 
