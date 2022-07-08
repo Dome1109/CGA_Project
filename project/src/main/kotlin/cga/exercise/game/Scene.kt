@@ -95,12 +95,12 @@ class Scene(private val window: GameWindow) {
     //scene setup
     init {
         staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
-        tronShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tronTest_frag.glsl")
+        tronShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
         skyBoxShader = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBox_frag.glsl")
         skyBoxShaderMono = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxMono_frag.glsl")
         skyBoxShaderToon = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxToon_frag.glsl")
         monoChromeRed = ShaderProgram("assets/shaders/monoChromeRed_vert.glsl", "assets/shaders/monoChromeRed_frag.glsl")
-        toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon2_frag.glsl")
+        toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon_frag.glsl")
 
         currentSkyboxShader = skyBoxShader
         currentShader = tronShader
