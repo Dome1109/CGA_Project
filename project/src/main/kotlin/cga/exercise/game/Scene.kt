@@ -187,7 +187,7 @@ class Scene(private val window: GameWindow) {
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(0f, 40f, -50f))
 
-        MusicPlayer.playMusic("assets/music/space.wav")
+        MusicPlayer.playMusic("assets/music/new.wav")
 
         orthocamera.parent = cycle
 
@@ -284,7 +284,7 @@ class Scene(private val window: GameWindow) {
         saturn.rotateLocal(0f,0f, 0.2f *dt)
 
         //ufo Movement
-        ufo.rotateLocal(0f,0.6f *dt,0f)
+        ufo.rotateLocal(0f,0.9f *dt,0f)
         val maxDiscrepancy = 0.1f
         accTransValue += transFactor * dt
         ufo.translateGlobal(Vector3f(0f,transFactor *dt,0f))
