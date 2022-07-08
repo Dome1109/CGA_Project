@@ -1,12 +1,15 @@
 package cga.exercise.game
 
+import cga.exercise.components.Misc.MusicPlayer
 import cga.exercise.components.camera.ICamera
 import cga.exercise.components.camera.OrthoCamera
 import cga.exercise.components.camera.TronCamera
 import cga.exercise.components.geometry.*
+import cga.exercise.components.light.DirectionalLight
 import cga.exercise.components.light.PointLight
 import cga.exercise.components.light.SpotLight
 import cga.exercise.components.shader.ShaderProgram
+import cga.exercise.components.texture.ShadowMap
 import cga.exercise.components.texture.Skybox
 import cga.exercise.components.texture.Texture2D
 import cga.framework.GLError
@@ -39,26 +42,30 @@ class Scene(private val window: GameWindow) {
     private var currentSkyboxShader: ShaderProgram
 
 
-    private var shaderNumber = 2
+
+    //private var shaderNumber = 2
 
     private var currentShader: ShaderProgram
 
-    private val meshListSphere = mutableListOf<Mesh>()
+
     private val meshListGround = mutableListOf<Mesh>()
-    private val meshListUFO = mutableListOf<Mesh>()
+
     val bodenmatrix: Matrix4f = Matrix4f()
     val kugelMatrix: Matrix4f = Matrix4f()
 
     val ground: Renderable
-    val sphere: Renderable
     var cycle : Renderable
     var ufo : Renderable
+    val saturn: Renderable
 
+
+    val shadowMap: ShadowMap
 
     private var currentCamera : ICamera
     val camera = TronCamera()
     val orthocamera = OrthoCamera()
-
+    val dirLight : DirectionalLight
+    val pointLight2 : PointLight
     val pointLight : PointLight
     val spotLight: SpotLight
     //MouseParam
@@ -73,22 +80,32 @@ class Scene(private val window: GameWindow) {
     var fuelInUse = false
 
     val maxFuelAmount = 100f
+    val jetFuelTimeOutBufferQuot = 4
     var fuelAmount = maxFuelAmount
+
+    var blinn = false
+
+    var accTransValue = 0f
+    var transFactor = 0.1f
+
+    val camZ : Vector3f
 
 
     //schöne Grüße
     //scene setup
     init {
         staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
-        tronShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
+        tronShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tronTest_frag.glsl")
         skyBoxShader = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBox_frag.glsl")
         skyBoxShaderMono = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxMono_frag.glsl")
         skyBoxShaderToon = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxToon_frag.glsl")
         monoChromeRed = ShaderProgram("assets/shaders/monoChromeRed_vert.glsl", "assets/shaders/monoChromeRed_frag.glsl")
-        toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon_frag.glsl")
+        toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon2_frag.glsl")
 
         currentSkyboxShader = skyBoxShader
         currentShader = tronShader
+
+        shadowMap = ShadowMap(Vector3f(-1f,0f,0f))
 
         skyBoxFaces.add("assets/textures/skybox/right.png")
         skyBoxFaces.add("assets/textures/skybox/left.png")
@@ -107,8 +124,6 @@ class Scene(private val window: GameWindow) {
         glDepthFunc(GL_LESS); GLError.checkThrow()
 
 
-        val objResSphere : OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/sphere.obj")
-        val objMeshListSphere : MutableList<OBJLoader.OBJMesh> = objResSphere.objects[0].meshes
 
         val objResGround : OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/ground.obj")
         val objMeshListGround : MutableList<OBJLoader.OBJMesh> = objResGround.objects[0].meshes
@@ -137,21 +152,13 @@ class Scene(private val window: GameWindow) {
         val groundMaterial = Material(groundDiffTexture, groundEmitTexture, groundSpecTexture, groundShininess,
                 groundTCMultiplier)
 
-        for (mesh in objMeshListSphere) {
-            meshListSphere.add(Mesh(mesh.vertexData, mesh.indexData, vertexAttributes))
-        }
+
 
         for (mesh in objMeshListGround) {
             meshListGround.add(Mesh(mesh.vertexData, mesh.indexData, vertexAttributes, groundMaterial))
         }
 
-        bodenmatrix.scale(0.03f)
-        bodenmatrix.rotateX(90f)
-
-        kugelMatrix.scale(0.5f)
-
         ground = Renderable(meshListGround)
-        sphere = Renderable(meshListSphere)
 
 
 
@@ -166,6 +173,13 @@ class Scene(private val window: GameWindow) {
         ufo = ModelLoader.loadModel("assets/ufo/Low_poly_UFO.obj",
             toRadians(180f), toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
+        saturn = ModelLoader.loadModel("assets/saturn/Saturn_V1.obj",
+            toRadians(0f), toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
+
+
+        saturn.scaleLocal(Vector3f(0.01f))
+        saturn.translateGlobal(Vector3f(30f, 0f, -30f))
+        //saturn.rotateLocal(toRadians(90f),0f,0f)
         cycle.scaleLocal(Vector3f(0.8f))
         camera.parent = cycle
 
@@ -173,22 +187,26 @@ class Scene(private val window: GameWindow) {
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(0f, 40f, -50f))
 
-
+        MusicPlayer.playMusic("assets/music/space.wav")
 
         orthocamera.parent = cycle
 
         pointLight = PointLight(Vector3f(0f, 2f, 0f), Vector3f(1f, 1f, 0f),
                 Vector3f(1f, 0.5f, 0.1f))
+        pointLight2 = PointLight(Vector3f(0f, 2f, 5f), Vector3f(0f, 1f, 0f),
+            Vector3f(1f, 0.5f, 0.1f))
 
         spotLight = SpotLight(Vector3f(0f, 1f, -2f), Vector3f(1f,1f,0.6f),
                 Vector3f(0.5f, 0.05f, 0.01f), Vector2f(toRadians(15f), toRadians(30f)))
 
+        dirLight = DirectionalLight(Vector3f(-1f, 0f, 0f), Vector3f(1f,1f,1f))
         spotLight.rotateLocal(toRadians(-10f), PI.toFloat(),0f)
 
         pointLight.parent = cycle
         spotLight.parent = cycle
 
         currentCamera = camera
+        camZ = camera.getZAxis()
     }
 
     fun render(dt: Float, t: Float) {
@@ -198,21 +216,29 @@ class Scene(private val window: GameWindow) {
 
         skybox.render(currentSkyboxShader, currentCamera.getCalculateViewMatrix(), currentCamera.getCalculateProjectionMatrix())
 
-        currentShader.use()
-        currentCamera.bind(currentShader)
 
-        spotLight.bind(currentShader, "spot", currentCamera.getCalculateViewMatrix())
-        pointLight.bind(currentShader, "point")
+        currentShader.use()
+        shadowMap.setShadowUniforms(currentShader)
+        if (blinn) currentShader.setUniform("blinn", 1)
+        else currentShader.setUniform("blinn", 0)
+
+        currentCamera.bind(currentShader)
+        dirLight.bind(currentShader, "dirLight",currentCamera.getCalculateViewMatrix())
+        spotLight.bind(currentShader, "spotLight", currentCamera.getCalculateViewMatrix())
+        pointLight.bind(currentShader, "pointLight")
+        pointLight2.bind(currentShader, "pointLight2")
 
         ufo.render(currentShader)
 
-
+        saturn.render(currentShader)
 
         currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
         cycle.render(currentShader)
 
         currentShader.setUniform("farbe", Vector3f(0f,1f,0f))
+
         ground.render(currentShader)
+
 
     }
 
@@ -234,6 +260,14 @@ class Scene(private val window: GameWindow) {
             currentSkyboxShader = skyBoxShaderToon
         }
 
+        if (window.getKeyState(GLFW_KEY_B)){
+            blinn = true
+        }
+        if (window.getKeyState(GLFW_KEY_N)){
+            blinn = false
+            println("N_KEY pressed")
+        }
+
         if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
 
         if (window.getKeyState(GLFW_KEY_R)) currentCamera = orthocamera
@@ -246,9 +280,24 @@ class Scene(private val window: GameWindow) {
 
 
 
-        // end timeOut when fuel regeneration hits target
-        if (timeOut) if (fuelAmount > maxFuelAmount/4) timeOut = false
 
+        saturn.rotateLocal(0f,0f, 0.2f *dt)
+
+        //ufo Movement
+        ufo.rotateLocal(0f,0.6f *dt,0f)
+        val maxDiscrepancy = 0.1f
+        accTransValue += transFactor * dt
+        ufo.translateGlobal(Vector3f(0f,transFactor *dt,0f))
+        if (accTransValue >= maxDiscrepancy || accTransValue <= -maxDiscrepancy) transFactor *= -1
+
+
+        // end timeOut when fuel regeneration hits target
+        if (timeOut) if (fuelAmount > maxFuelAmount/jetFuelTimeOutBufferQuot) {
+            timeOut = false
+            println("Jet Fuel Capacity at ${100/jetFuelTimeOutBufferQuot} %")
+        }
+
+        fuelInUse = false
         when {
             window.getKeyState(GLFW_KEY_W) -> {
                 if (window.getKeyState(GLFW_KEY_A)) {
@@ -266,12 +315,12 @@ class Scene(private val window: GameWindow) {
                 }
 
                 else {
-                    fuelInUse = false
+
                     cycle.translateLocal(Vector3f(0f, 0f, norMovementSpeedFactor * -dt))
                 }
             }
             window.getKeyState(GLFW_KEY_S) -> {
-                fuelInUse = false
+
                 if (window.getKeyState(GLFW_KEY_A)) {
                     cycle.rotateLocal(0f,1.5f * dt,0f)
                 }
@@ -283,16 +332,20 @@ class Scene(private val window: GameWindow) {
         }
 
         // start timOut when fuelAmount reaches (below) zero
-        if (fuelAmount <= 0) {
+        if (fuelAmount <= 0 && !timeOut) {
             fuelAmount = 0f
             timeOut = true
+            println("Jet TIMEOUT!")
         }
 
         // fuel regeneration
         if (!fuelInUse && fuelAmount < maxFuelAmount) {
             fuelAmount += 10 * dt
 
-            if (fuelAmount > maxFuelAmount) fuelAmount = maxFuelAmount
+            if (fuelAmount > maxFuelAmount) {
+                fuelAmount = maxFuelAmount
+                println("Jet Fuel capacity at 100 %")
+            }
 
         }
     }
@@ -307,6 +360,9 @@ class Scene(private val window: GameWindow) {
 
         if(notFirstFrame) {
             camera.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+            //camera.rotateAroundPoint(toRadians(deltaX.toFloat() * 0.03f), 0f, 0f, Vector3f(0f))
+
+            //camera.setZAxis(camZ)
         }
 
         notFirstFrame = true

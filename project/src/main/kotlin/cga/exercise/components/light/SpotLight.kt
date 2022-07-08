@@ -12,7 +12,7 @@ class SpotLight(pos : Vector3f, color : Vector3f, attParam: Vector3f, var angle:
 
     override fun bind(shaderProgram: ShaderProgram, name: String, viewMatrix: Matrix4f) {
         super.bind(shaderProgram,name); GLError.checkThrow()
-        shaderProgram.setUniform(name + "LightAngle", angle); GLError.checkThrow()
-        shaderProgram.setUniform(name + "LightDir", getWorldZAxis().negate().mul(Matrix3f(viewMatrix)))
+        shaderProgram.setUniform(name + "Angle", angle); GLError.checkThrow()
+        shaderProgram.setUniform(name + "Dir", getWorldZAxis().negate().mul(Matrix3f(viewMatrix)))
     }
 }

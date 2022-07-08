@@ -14,8 +14,8 @@ open class PointLight (var lightPosition : Vector3f,
     }
 
     override fun bind(shaderProgram: ShaderProgram, name: String) {
-        shaderProgram.setUniform(name + "LightPos", getWorldPosition())
-        shaderProgram.setUniform(name + "LightColor", lightColor)
-        shaderProgram.setUniform(name + "LightAttParam", attParam)
+        shaderProgram.setUniform(name + "Pos", getWorldPosition())
+        shaderProgram.setUniform(name + "Color", lightColor)
+        shaderProgram.setUniform(name + "AttParam", attParam)
     }
 }
