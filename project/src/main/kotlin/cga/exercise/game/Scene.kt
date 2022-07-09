@@ -57,6 +57,8 @@ class Scene(private val window: GameWindow) {
     var cycle : Renderable
     var ufo : Renderable
     val saturn: Renderable
+    var astronaut : Renderable
+    var asteroids = arrayListOf<Renderable>()
 
 
 //    val shadowMap: ShadowMap
@@ -91,7 +93,7 @@ class Scene(private val window: GameWindow) {
     val camZ : Vector3f
 
 
-    //schöne Grüße
+
     //scene setup
     init {
         staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
@@ -176,6 +178,12 @@ class Scene(private val window: GameWindow) {
         saturn = ModelLoader.loadModel("assets/saturn/Saturn_V1.obj",
             toRadians(0f), toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
 
+        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(270f), 0f)?: throw Exception("Renderable can't be NULL!")
+
+       asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
+       asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
+       asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(90f),0f)?: throw Exception("Renderable can't be NULL!"))
+
 
         saturn.scaleLocal(Vector3f(0.01f))
         saturn.translateGlobal(Vector3f(30f, 0f, -30f))
@@ -187,6 +195,17 @@ class Scene(private val window: GameWindow) {
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(0f, 40f, -50f))
 
+        astronaut.translateLocal(Vector3f(2f,0f,-2f))
+
+        asteroids[0].scaleLocal(Vector3f(0.6f))
+        asteroids[1].scaleLocal(Vector3f(0.3f))
+        asteroids[2].scaleLocal(Vector3f(0.1f))
+
+        asteroids[0].translateLocal(Vector3f(-3f,2f,-2f))
+        asteroids[1].translateLocal(Vector3f(-12f,3f,-4f))
+        asteroids[2].translateLocal(Vector3f(-60f,10f,-4f))
+
+        MusicPlayer.playMusic("assets/music/space.wav")
         MusicPlayer.playMusic("assets/music/new.wav")
 
         orthocamera.parent = cycle
@@ -231,6 +250,13 @@ class Scene(private val window: GameWindow) {
         ufo.render(currentShader)
 
         saturn.render(currentShader)
+
+        currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
+       astronaut.render(currentShader)
+
+        for (i in asteroids){
+            i.render(currentShader)
+        }
 
         currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
         cycle.render(currentShader)
