@@ -180,9 +180,9 @@ class Scene(private val window: GameWindow) {
 
         astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(270f), 0f)?: throw Exception("Renderable can't be NULL!")
 
-       asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
-       asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
-       asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(90f),0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(90f),0f)?: throw Exception("Renderable can't be NULL!"))
 
 
         saturn.scaleLocal(Vector3f(0.01f))
@@ -200,6 +200,10 @@ class Scene(private val window: GameWindow) {
         asteroids[0].scaleLocal(Vector3f(0.6f))
         asteroids[1].scaleLocal(Vector3f(0.3f))
         asteroids[2].scaleLocal(Vector3f(0.1f))
+
+        asteroids[0].translateLocal(Vector3f(-3f,2f,-2f))
+        asteroids[1].translateLocal(Vector3f(-12f,3f,-4f))
+        asteroids[2].translateLocal(Vector3f(-60f,10f,-4f))
 
 
         MusicPlayer.playMusic("assets/music/spaceMusicTest.wav")
