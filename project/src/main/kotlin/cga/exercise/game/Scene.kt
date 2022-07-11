@@ -206,7 +206,7 @@ class Scene(private val window: GameWindow) {
         asteroids[2].translateLocal(Vector3f(-60f,10f,-4f))
 
 
-        MusicPlayer.playMusic("assets/music/spaceMusicTest.wav")
+        MusicPlayer.playMusic("assets/music/spaceMusicV3.wav")
 
         orthocamera.parent = cycle
 
