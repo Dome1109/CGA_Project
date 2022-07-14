@@ -54,7 +54,6 @@ class Scene(private val window: GameWindow) {
     val kugelMatrix: Matrix4f = Matrix4f()
 
     val ground: Renderable
-    var cycle : Renderable
     var ufo : Renderable
     val saturn: Renderable
     var astronaut : Renderable
@@ -169,8 +168,7 @@ class Scene(private val window: GameWindow) {
 
         camera.rotateLocal(Math.toRadians(-35f),0f, 0f)
         camera.translateLocal(Vector3f(0f, 0f, 4f))
-        cycle = ModelLoader.loadModel("assets/light Cycle/light Cycle/HQ_Movie cycle.obj",
-                toRadians(-90f), toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
+
 
         ufo = ModelLoader.loadModel("assets/ufo/Low_poly_UFO.obj",
             toRadians(180f), toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
@@ -178,7 +176,7 @@ class Scene(private val window: GameWindow) {
         saturn = ModelLoader.loadModel("assets/saturn/Saturn_V1.obj",
             toRadians(0f), toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
 
-        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(270f), 0f)?: throw Exception("Renderable can't be NULL!")
+        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
@@ -188,8 +186,8 @@ class Scene(private val window: GameWindow) {
         saturn.scaleLocal(Vector3f(0.01f))
         saturn.translateGlobal(Vector3f(30f, 0f, -30f))
         //saturn.rotateLocal(toRadians(90f),0f,0f)
-        cycle.scaleLocal(Vector3f(0.8f))
-        camera.parent = cycle
+        astronaut.scaleLocal(Vector3f(0.4f))
+        camera.parent = astronaut
 
 
         ufo.scaleLocal(Vector3f(0.1f))
@@ -208,7 +206,7 @@ class Scene(private val window: GameWindow) {
 
         MusicPlayer.playMusic("assets/music/spaceMusicV3.wav")
 
-        orthocamera.parent = cycle
+        orthocamera.parent = astronaut
 
         pointLight = PointLight(Vector3f(0f, 2f, 0f), Vector3f(1f, 1f, 0f),
                 Vector3f(1f, 0.5f, 0.1f))
@@ -221,8 +219,8 @@ class Scene(private val window: GameWindow) {
         dirLight = DirectionalLight(Vector3f(-1f, 0f, 0f), Vector3f(1f,1f,1f))
         spotLight.rotateLocal(toRadians(-10f), PI.toFloat(),0f)
 
-        pointLight.parent = cycle
-        spotLight.parent = cycle
+        pointLight.parent = astronaut
+        spotLight.parent = astronaut
 
         currentCamera = camera
         camZ = camera.getZAxis()
@@ -259,7 +257,7 @@ class Scene(private val window: GameWindow) {
         }
 
         currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
-        cycle.render(currentShader)
+        astronaut.render(currentShader)
 
         currentShader.setUniform("farbe", Vector3f(0f,1f,0f))
 
@@ -327,33 +325,33 @@ class Scene(private val window: GameWindow) {
         when {
             window.getKeyState(GLFW_KEY_W) -> {
                 if (window.getKeyState(GLFW_KEY_A)) {
-                    cycle.rotateLocal(0f,1.5f * dt,0f)
+                    astronaut.rotateLocal(0f,1.5f * dt,0f)
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
-                    cycle.rotateLocal(0f, 1.5f * -dt,0f)
+                    astronaut.rotateLocal(0f, 1.5f * -dt,0f)
                 }
                 if (window.getKeyState(GLFW_KEY_LEFT_SHIFT)  && !timeOut) {
                     fuelInUse = true
                     fuelAmount -= 40 * dt
-                    cycle.translateLocal(Vector3f(0f, 0f, accMovementSpeedFactor * -dt))
+                   astronaut.translateLocal(Vector3f(0f, 0f, accMovementSpeedFactor * -dt))
 
 
                 }
 
                 else {
 
-                    cycle.translateLocal(Vector3f(0f, 0f, norMovementSpeedFactor * -dt))
+                    astronaut.translateLocal(Vector3f(0f, 0f, norMovementSpeedFactor * -dt))
                 }
             }
             window.getKeyState(GLFW_KEY_S) -> {
 
                 if (window.getKeyState(GLFW_KEY_A)) {
-                    cycle.rotateLocal(0f,1.5f * dt,0f)
+                    astronaut.rotateLocal(0f,1.5f * dt,0f)
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
-                    cycle.rotateLocal(0f, 1.5f * -dt,0f)
+                    astronaut.rotateLocal(0f, 1.5f * -dt,0f)
                 }
-                cycle.translateLocal(Vector3f(0f, 0f, revMovementSpeedFactor * dt))
+                astronaut.translateLocal(Vector3f(0f, 0f, revMovementSpeedFactor * dt))
             }
         }
 
