@@ -372,6 +372,14 @@ class Scene(private val window: GameWindow) {
             }
 
         }
+
+        //Astronaut Schweben
+        if (t.toInt() % 2 == 0){
+            astronaut.translateLocal(Vector3f(0f,0.2f* dt,0f))
+
+        } else {
+            astronaut.translateLocal(Vector3f(0f,-0.2f *dt,0f))
+        }
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
