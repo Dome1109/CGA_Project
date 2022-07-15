@@ -154,7 +154,6 @@ class Scene(private val window: GameWindow) {
                 groundTCMultiplier)
 
 
-
         for (mesh in objMeshListGround) {
             meshListGround.add(Mesh(mesh.vertexData, mesh.indexData, vertexAttributes, groundMaterial))
         }
@@ -178,6 +177,7 @@ class Scene(private val window: GameWindow) {
 
         astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
+
         asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(90f),0f)?: throw Exception("Renderable can't be NULL!"))
@@ -191,7 +191,7 @@ class Scene(private val window: GameWindow) {
 
 
         ufo.scaleLocal(Vector3f(0.1f))
-        ufo.translateLocal(Vector3f(0f, 40f, -50f))
+        ufo.translateLocal(Vector3f(-40f, 40f, -200f))
 
         astronaut.translateLocal(Vector3f(2f,0f,-2f))
 
@@ -199,9 +199,9 @@ class Scene(private val window: GameWindow) {
         asteroids[1].scaleLocal(Vector3f(0.3f))
         asteroids[2].scaleLocal(Vector3f(0.1f))
 
-        asteroids[0].translateLocal(Vector3f(-3f,2f,-2f))
-        asteroids[1].translateLocal(Vector3f(-12f,3f,-4f))
-        asteroids[2].translateLocal(Vector3f(-60f,10f,-4f))
+        asteroids[0].translateLocal(Vector3f(5f,2f,-40f))
+        asteroids[1].translateLocal(Vector3f(-5f,3f,-60f))
+        asteroids[2].translateLocal(Vector3f(15f,10f,-90f))
 
 
         MusicPlayer.playMusic("assets/music/spaceMusicV3.wav")
@@ -224,6 +224,29 @@ class Scene(private val window: GameWindow) {
 
         currentCamera = camera
         camZ = camera.getZAxis()
+    }
+
+
+    fun getXandZ_coord(asteroid : Renderable?): Pair<Float, Float>{
+
+
+        //Gleiche für das bewegende Objekt
+        val asteroidX = asteroid?.getWorldPosition();
+        val asteroidY = asteroid?.getWorldPosition();
+
+        val ex = asteroidX!!.x;
+        val ey = asteroidY!!.z;
+
+
+        return Pair(ex, ey)
+    }
+
+    fun asteroidLogic (asteroid: Renderable?, dt:Float) {
+
+        var coord_asteroid = getXandZ_coord(asteroid)
+
+        asteroid?.translateLocal(Vector3f(0f, 0f, 4f*dt))
+
     }
 
     fun render(dt: Float, t: Float) {
@@ -267,6 +290,11 @@ class Scene(private val window: GameWindow) {
     }
 
     fun update(dt: Float, t: Float) {
+
+
+        for(a in asteroids) {
+            asteroidLogic(a, dt)
+        }
 
         if (window.getKeyState(GLFW_KEY_L)) ufo.rotateLocal(1.5f * dt,0f,0f)
 
