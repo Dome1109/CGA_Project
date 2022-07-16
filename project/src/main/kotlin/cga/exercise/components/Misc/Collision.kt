@@ -3,7 +3,7 @@ package cga.exercise.components.Misc
 import cga.exercise.components.geometry.Renderable
 
 class Collision (val char: Renderable) {
-    val charWidth: Float
+    /*val charWidth: Float
     val charDepth : Float
     val c : Float
     init {
@@ -27,7 +27,7 @@ class Collision (val char: Renderable) {
         c = list.max()?: throw Exception()
 
     }
-
+    */
     fun maxValue (list: List<Float>) : Float = list.reduce  { a: Float, b: Float -> a.coerceAtLeast(b) }
 
     fun minValue (list: List<Float>) : Float = list.reduce  { a: Float, b: Float -> a.coerceAtMost(b) }
