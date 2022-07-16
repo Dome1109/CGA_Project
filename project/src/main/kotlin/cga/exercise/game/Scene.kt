@@ -273,7 +273,7 @@ class Scene(private val window: GameWindow) {
         saturn.render(currentShader)
 
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
-       astronaut.render(currentShader)
+        astronaut.render(currentShader)
 
         for (i in asteroids){
             i.render(currentShader)
