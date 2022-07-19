@@ -279,12 +279,11 @@ class Scene(private val window: GameWindow) {
             i.render(currentShader)
         }
 
-        currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
-        astronaut.render(currentShader)
+        //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
         currentShader.setUniform("farbe", Vector3f(0f,1f,0f))
 
-        ground.render(currentShader)
+        //ground.render(currentShader)
 
 
     }
