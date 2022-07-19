@@ -58,6 +58,8 @@ class Scene(private val window: GameWindow) {
     val saturn: Renderable
     var astronaut : Renderable
     var asteroids = arrayListOf<Renderable>()
+    val earth : Renderable
+    val shuttle : Renderable
 
 
 //    val shadowMap: ShadowMap
@@ -177,6 +179,9 @@ class Scene(private val window: GameWindow) {
 
         astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
+        earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
+
+        shuttle = ModelLoader.loadModel("assets/shuttle/shuttle.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
@@ -189,6 +194,11 @@ class Scene(private val window: GameWindow) {
         astronaut.scaleLocal(Vector3f(0.4f))
         camera.parent = astronaut
 
+        earth.scaleLocal(Vector3f(0.05f))
+        earth.translateLocal(Vector3f(-300f,0f,-500f))
+
+        shuttle.scaleLocal(Vector3f(0.5f))
+        shuttle.translateLocal(Vector3f(0f,0f,-20f))
 
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(-40f, 40f, -200f))
@@ -273,11 +283,16 @@ class Scene(private val window: GameWindow) {
         saturn.render(currentShader)
 
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
+
         astronaut.render(currentShader)
+
 
         for (i in asteroids){
             i.render(currentShader)
         }
+
+        earth.render(currentShader)
+        shuttle.render(currentShader)
 
         //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
