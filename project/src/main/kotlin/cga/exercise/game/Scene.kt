@@ -1,15 +1,19 @@
 package cga.exercise.game
 
+//import cga.exercise.components.texture.ShadowMap
+
 import cga.exercise.components.Misc.MusicPlayer
 import cga.exercise.components.camera.ICamera
 import cga.exercise.components.camera.OrthoCamera
 import cga.exercise.components.camera.TronCamera
-import cga.exercise.components.geometry.*
+import cga.exercise.components.geometry.Material
+import cga.exercise.components.geometry.Mesh
+import cga.exercise.components.geometry.Renderable
+import cga.exercise.components.geometry.VertexAttribute
 import cga.exercise.components.light.DirectionalLight
 import cga.exercise.components.light.PointLight
 import cga.exercise.components.light.SpotLight
 import cga.exercise.components.shader.ShaderProgram
-//import cga.exercise.components.texture.ShadowMap
 import cga.exercise.components.texture.Skybox
 import cga.exercise.components.texture.Texture2D
 import cga.framework.GLError
@@ -22,7 +26,6 @@ import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
-
 import org.lwjgl.opengl.GL30.*
 import kotlin.math.PI
 
@@ -53,7 +56,7 @@ class Scene(private val window: GameWindow) {
     val bodenmatrix: Matrix4f = Matrix4f()
     val kugelMatrix: Matrix4f = Matrix4f()
 
-    val ground: Renderable
+    //val ground: Renderable
     var ufo : Renderable
     val saturn: Renderable
     var astronaut : Renderable
@@ -160,7 +163,7 @@ class Scene(private val window: GameWindow) {
             meshListGround.add(Mesh(mesh.vertexData, mesh.indexData, vertexAttributes, groundMaterial))
         }
 
-        ground = Renderable(meshListGround)
+        //ground = Renderable(meshListGround)
 
 
 
@@ -177,7 +180,7 @@ class Scene(private val window: GameWindow) {
         saturn = ModelLoader.loadModel("assets/saturn/Saturn_V1.obj",
             toRadians(0f), toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
 
-        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
+        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(270f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
@@ -253,11 +256,12 @@ class Scene(private val window: GameWindow) {
 
     fun asteroidLogic (asteroid: Renderable?, dt:Float) {
 
-        var coord_asteroid = getXandZ_coord(asteroid)
+        //var coord_asteroid = getXandZ_coord(asteroid)
 
         asteroid?.translateLocal(Vector3f(0f, 0f, 4f*dt))
 
     }
+
 
     fun render(dt: Float, t: Float) {
 
@@ -416,12 +420,12 @@ class Scene(private val window: GameWindow) {
         }
 
         //Astronaut Schweben
-        if (t.toInt() % 2 == 0){
-            astronaut.translateLocal(Vector3f(0f,0.2f* dt,0f))
+       // if (t.toInt() % 2 == 0){
+         //   astronaut.translateLocal(Vector3f(0f,0.2f* dt,0f))
 
-        } else {
-            astronaut.translateLocal(Vector3f(0f,-0.2f *dt,0f))
-        }
+        //} else {
+          //  astronaut.translateLocal(Vector3f(0f,-0.2f *dt,0f))
+        //}
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
