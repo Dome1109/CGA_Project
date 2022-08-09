@@ -52,6 +52,7 @@ class Scene(private val window: GameWindow) {
 
 
     private val meshListGround = mutableListOf<Mesh>()
+    private val meshListEmpty = mutableListOf<Mesh>()
 
     val bodenmatrix: Matrix4f = Matrix4f()
     val kugelMatrix: Matrix4f = Matrix4f()
@@ -63,6 +64,8 @@ class Scene(private val window: GameWindow) {
     var asteroids = arrayListOf<Renderable>()
     val earth : Renderable
     val shuttle : Renderable
+    val wrench : Renderable
+    val screw : Renderable
 
 
 //    val shadowMap: ShadowMap
@@ -70,6 +73,7 @@ class Scene(private val window: GameWindow) {
     private var currentCamera : ICamera
     val camera = TronCamera()
     val orthocamera = OrthoCamera()
+    val firstPersonCamera = TronCamera()
     val dirLight : DirectionalLight
     val pointLight2 : PointLight
     val pointLight : PointLight
@@ -172,6 +176,7 @@ class Scene(private val window: GameWindow) {
 
         camera.rotateLocal(Math.toRadians(-35f),0f, 0f)
         camera.translateLocal(Vector3f(0f, 0f, 4f))
+        firstPersonCamera.translateLocal(Vector3f(0f,0.75f,-1f))
 
 
         ufo = ModelLoader.loadModel("assets/ufo/Low_poly_UFO.obj",
@@ -180,7 +185,7 @@ class Scene(private val window: GameWindow) {
         saturn = ModelLoader.loadModel("assets/saturn/Saturn_V1.obj",
             toRadians(0f), toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
 
-        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(270f), 0f)?: throw Exception("Renderable can't be NULL!")
+        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
@@ -190,15 +195,18 @@ class Scene(private val window: GameWindow) {
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(90f),0f)?: throw Exception("Renderable can't be NULL!"))
 
+        wrench = ModelLoader.loadModel("assets/wrench/wrench.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
+        screw = ModelLoader.loadModel("assets/screw/screw.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         saturn.scaleLocal(Vector3f(0.01f))
         saturn.translateGlobal(Vector3f(30f, 0f, -30f))
         //saturn.rotateLocal(toRadians(90f),0f,0f)
         astronaut.scaleLocal(Vector3f(0.4f))
         camera.parent = astronaut
+        firstPersonCamera.parent = astronaut
 
-        earth.scaleLocal(Vector3f(0.05f))
-        earth.translateLocal(Vector3f(-300f,0f,-500f))
+        earth.scaleLocal(Vector3f(0.3f))
+        earth.translateLocal(Vector3f(-200f,0f,-200f))
 
         shuttle.scaleLocal(Vector3f(0.5f))
         shuttle.translateLocal(Vector3f(0f,0f,-20f))
@@ -206,7 +214,13 @@ class Scene(private val window: GameWindow) {
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(-40f, 40f, -200f))
 
-        astronaut.translateLocal(Vector3f(2f,0f,-2f))
+        wrench.translateLocal(Vector3f(10f,0f,-10f))
+        wrench.scaleLocal(Vector3f(0.7f))
+
+        screw.translateLocal(Vector3f(-10f,0f,-10f))
+        screw.scaleLocal(Vector3f(0.1f))
+
+        //astronaut.translateLocal(Vector3f(2f,0f,-2f))
 
         asteroids[0].scaleLocal(Vector3f(0.6f))
         asteroids[1].scaleLocal(Vector3f(0.3f))
@@ -298,6 +312,9 @@ class Scene(private val window: GameWindow) {
         earth.render(currentShader)
         shuttle.render(currentShader)
 
+        wrench.render(currentShader)
+        screw.render(currentShader)
+
         //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
         currentShader.setUniform("farbe", Vector3f(0f,1f,0f))
@@ -341,6 +358,8 @@ class Scene(private val window: GameWindow) {
         if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
 
         if (window.getKeyState(GLFW_KEY_R)) currentCamera = orthocamera
+
+        if (window.getKeyState(GLFW_KEY_V)) currentCamera = firstPersonCamera
 
         pointLight.lightColor = Vector3f(abs(sin(t/3f)), abs(sin(t/4f)), abs(sin(t/2)))
 
@@ -437,13 +456,35 @@ class Scene(private val window: GameWindow) {
         oldMousePosY = ypos
 
         if(notFirstFrame) {
-            camera.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+
+            if (currentCamera == camera)
+                camera.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+
+            else if (currentCamera == firstPersonCamera)
+                astronaut.rotateLocal(0f, -toRadians(deltaX.toFloat() * 0.05f), 0f)
+
             //camera.rotateAroundPoint(toRadians(deltaX.toFloat() * 0.03f), 0f, 0f, Vector3f(0f))
 
             //camera.setZAxis(camZ)
         }
 
         notFirstFrame = true
+    }
+
+    // Zoom
+    fun onMouseScroll(xoffset: Double, yoffset: Double){
+
+        if (yoffset>0){
+            if (camera.getWorldPosition().y >= 0.65) {
+                camera.translateLocal(Vector3f(0f, 0.04f*yoffset.toFloat(), -0.1f*yoffset.toFloat()))
+                println(camera.getWorldPosition())
+        }
+        }
+        else if (yoffset<0){
+            if (camera.getWorldPosition().y <= 1.25)
+            camera.translateLocal(Vector3f(0f, 0.04f*yoffset.toFloat(), -0.1f*yoffset.toFloat()))
+            println(camera.getWorldPosition())
+        }
     }
 
     fun cleanup() {}

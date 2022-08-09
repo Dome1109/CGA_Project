@@ -251,7 +251,7 @@ abstract class GameWindow(
      * @param xoffset   x offset of the mouse wheel
      * @param yoffset   y offset of the mouse wheel
      */
-    protected fun onMouseScroll(xoffset: Double, yoffset: Double) {}
+    protected open fun onMouseScroll(xoffset: Double, yoffset: Double) {}
 
     /**
      * Is called when a key is pressed or released
