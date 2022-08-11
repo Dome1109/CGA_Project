@@ -2,6 +2,7 @@ package cga.exercise.game
 
 //import cga.exercise.components.texture.ShadowMap
 
+import cga.exercise.components.Misc.Collision
 import cga.exercise.components.Misc.MusicPlayer
 import cga.exercise.components.camera.ICamera
 import cga.exercise.components.camera.OrthoCamera
@@ -61,11 +62,10 @@ class Scene(private val window: GameWindow) {
     var ufo : Renderable
     val saturn: Renderable
     var astronaut : Renderable
-    var asteroids = arrayListOf<Renderable>()
+    val asteroids = arrayListOf<Renderable>()
     val earth : Renderable
     val shuttle : Renderable
-    val wrench : Renderable
-    val screw : Renderable
+    val items = arrayListOf<Renderable>()
 
 
 //    val shadowMap: ShadowMap
@@ -93,6 +93,8 @@ class Scene(private val window: GameWindow) {
     val jetFuelTimeOutBufferQuot = 4
     var fuelAmount = maxFuelAmount
 
+    var timerCollision = 50f
+
     var blinn = false
 
     var accTransValue = 0f
@@ -100,7 +102,7 @@ class Scene(private val window: GameWindow) {
 
     val camZ : Vector3f
 
-
+    val collisionAstronaut : Collision
 
     //scene setup
     init {
@@ -195,8 +197,8 @@ class Scene(private val window: GameWindow) {
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(90f),0f)?: throw Exception("Renderable can't be NULL!"))
 
-        wrench = ModelLoader.loadModel("assets/wrench/wrench.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
-        screw = ModelLoader.loadModel("assets/screw/screw.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
+        items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!"))
+        items.add(ModelLoader.loadModel("assets/screw/screw.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!"))
 
         saturn.scaleLocal(Vector3f(0.01f))
         saturn.translateGlobal(Vector3f(30f, 0f, -30f))
@@ -214,11 +216,11 @@ class Scene(private val window: GameWindow) {
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(-40f, 40f, -200f))
 
-        wrench.translateLocal(Vector3f(10f,0f,-10f))
-        wrench.scaleLocal(Vector3f(0.7f))
+        items[0].translateLocal(Vector3f(10f,0f,-10f))
+        items[0].scaleLocal(Vector3f(0.7f))
 
-        screw.translateLocal(Vector3f(-10f,0f,-10f))
-        screw.scaleLocal(Vector3f(0.1f))
+        items[1].translateLocal(Vector3f(-10f,0f,-10f))
+        items[1].scaleLocal(Vector3f(0.1f))
 
         //astronaut.translateLocal(Vector3f(2f,0f,-2f))
 
@@ -251,6 +253,8 @@ class Scene(private val window: GameWindow) {
 
         currentCamera = camera
         camZ = camera.getZAxis()
+
+        collisionAstronaut = Collision(astronaut)
     }
 
 
@@ -309,11 +313,13 @@ class Scene(private val window: GameWindow) {
             i.render(currentShader)
         }
 
+        for (i in items){
+            i.render(currentShader)
+        }
+
         earth.render(currentShader)
         shuttle.render(currentShader)
 
-        wrench.render(currentShader)
-        screw.render(currentShader)
 
         //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
@@ -436,6 +442,35 @@ class Scene(private val window: GameWindow) {
                 println("Jet Fuel capacity at 100 %")
             }
 
+        }
+
+        if (collisionAstronaut.CheckCollision(asteroids)){
+            println("Kollision mit Asteroid")
+        }
+
+        // Cooldown zum Item aufsammeln
+        timerCollision -= 10*dt
+        //println(timerCollision)
+
+        // Shader-Wechsel bei Aufsammeln eines Items
+        if (collisionAstronaut.CheckCollision(items)){
+            println("Kollision mit Item")
+
+            if (currentShader == tronShader && timerCollision <= 0){
+                currentShader = monoChromeRed
+                currentSkyboxShader = skyBoxShaderMono
+                timerCollision = 50f
+            }
+            else if (currentShader == monoChromeRed && timerCollision <= 0){
+                currentShader = toonShader
+                currentSkyboxShader = skyBoxShaderToon
+                timerCollision = 50f
+            }
+            else if (currentShader == toonShader && timerCollision <= 0){
+                currentShader = tronShader
+                currentSkyboxShader = skyBoxShader
+                timerCollision = 50f
+            }
         }
 
         //Astronaut Schweben
