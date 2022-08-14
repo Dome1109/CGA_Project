@@ -28,7 +28,7 @@ void main()
 
     float gamma = 1.8;
 
-    FragColor = vec4(pow((color * cellValue(colorAVG, 20)), vec3(1.0/gamma)),1f);
+    FragColor = vec4(pow((color * cellValue(colorAVG, 20)), vec3(1.0/gamma)),1);
 
 
 }

@@ -26,10 +26,10 @@ out struct VertexData
 //
 void main(){
     mat4 modelview = view * model_matrix;
-    vec4 modelViewPosition = modelview * vec4(position, 1.0f);
+    vec4 modelViewPosition = modelview * vec4(position, 1.0);
 
     vec4 pos = projection * modelViewPosition;
-    vec4 norm = transpose(inverse(modelview)) * vec4(normals, 0.0f);
+    vec4 norm = transpose(inverse(modelview)) * vec4(normals, 0.0);
     gl_Position = pos;
     vertexData.normale = norm.xyz;
     vertexData.tc =  texCoord * tcMultiplier;

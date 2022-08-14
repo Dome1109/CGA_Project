@@ -7,7 +7,7 @@ uniform mat4 model_matrix;
 
 void main(){
 
-    gl_Position = lightProjection * model_matrix * vec4(position, 1f);
+    gl_Position = lightProjection * model_matrix * vec4(position, 1);
 
 
 }
