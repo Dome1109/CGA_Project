@@ -53,12 +53,8 @@ class Scene(private val window: GameWindow) {
 
 
     private val meshListGround = mutableListOf<Mesh>()
-    private val meshListEmpty = mutableListOf<Mesh>()
 
-    val bodenmatrix: Matrix4f = Matrix4f()
-    val kugelMatrix: Matrix4f = Matrix4f()
 
-    //val ground: Renderable
     var ufo : Renderable
     val saturn: Renderable
     var astronaut : Renderable
@@ -74,6 +70,7 @@ class Scene(private val window: GameWindow) {
     val camera = TronCamera()
     val orthocamera = OrthoCamera()
     val firstPersonCamera = TronCamera()
+
     val dirLight : DirectionalLight
     val pointLight2 : PointLight
     val pointLight : PointLight
@@ -100,7 +97,7 @@ class Scene(private val window: GameWindow) {
     var accTransValue = 0f
     var transFactor = 0.1f
 
-    val camZ : Vector3f
+
 
     val collisionAstronaut : Collision
 
@@ -116,8 +113,6 @@ class Scene(private val window: GameWindow) {
 
         currentSkyboxShader = skyBoxShader
         currentShader = tronShader
-
-//        shadowMap = ShadowMap(Vector3f(-1f,0f,0f))
 
         skyBoxFaces.add("assets/textures/skybox/right.png")
         skyBoxFaces.add("assets/textures/skybox/left.png")
@@ -136,45 +131,12 @@ class Scene(private val window: GameWindow) {
         glDepthFunc(GL_LESS); GLError.checkThrow()
 
 
-
         val objResGround : OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/ground.obj")
         val objMeshListGround : MutableList<OBJLoader.OBJMesh> = objResGround.objects[0].meshes
 
 
-
-        val stride = 8 * 4
-        val attrPos = VertexAttribute(3, GL_FLOAT, stride, 0)
-        val attrTC = VertexAttribute(2, GL_FLOAT, stride, 3 * 4)
-        val attrNorm = VertexAttribute(3, GL_FLOAT, stride, 5 * 4)
-
-        val vertexAttributes = arrayOf(attrPos,attrTC, attrNorm)
-
-        val groundEmitTexture = Texture2D("assets/textures/ground_emit.png", true)
-        val groundDiffTexture = Texture2D("assets/textures/ground_diff.png", true)
-        val groundSpecTexture = Texture2D("assets/textures/ground_spec.png", true)
-
-        groundEmitTexture.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
-        groundDiffTexture.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
-        groundSpecTexture.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
-
-
-        val groundShininess = 60f
-        val groundTCMultiplier = Vector2f(64f)
-
-        val groundMaterial = Material(groundDiffTexture, groundEmitTexture, groundSpecTexture, groundShininess,
-                groundTCMultiplier)
-
-
-        for (mesh in objMeshListGround) {
-            meshListGround.add(Mesh(mesh.vertexData, mesh.indexData, vertexAttributes, groundMaterial))
-        }
-
-        //ground = Renderable(meshListGround)
-
-
-
         orthocamera.rotateLocal(toRadians(-85f), 0f, 0f)
-        orthocamera.translateLocal(Vector3f(0f, 0f, 5f))
+        orthocamera.translateLocal(Vector3f(0f, 6f, 20f))
 
         camera.rotateLocal(Math.toRadians(-35f),0f, 0f)
         camera.translateLocal(Vector3f(0f, 0f, 4f))
@@ -236,7 +198,7 @@ class Scene(private val window: GameWindow) {
         MusicPlayer.playMusic("assets/music/spaceMusicV3.wav")
 
         orthocamera.parent = astronaut
-
+        orthocamera.multiplier = 1.1f
         pointLight = PointLight(Vector3f(0f, 2f, 0f), Vector3f(1f, 1f, 0f),
                 Vector3f(1f, 0.5f, 0.1f))
         pointLight2 = PointLight(Vector3f(0f, 2f, 5f), Vector3f(0f, 1f, 0f),
@@ -250,9 +212,11 @@ class Scene(private val window: GameWindow) {
 
         pointLight.parent = astronaut
         spotLight.parent = astronaut
+        earth.parent = astronaut
+        saturn.parent = astronaut
 
         currentCamera = camera
-        camZ = camera.getZAxis()
+
 
         collisionAstronaut = Collision(astronaut)
     }
@@ -273,10 +237,18 @@ class Scene(private val window: GameWindow) {
     }
 
     fun asteroidLogic (asteroid: Renderable?, dt:Float) {
-
+        //val oldPos = asteroid?.getWorldPosition()
+        val asteroidpos = Vector3f(asteroid?.getWorldPosition())
         //var coord_asteroid = getXandZ_coord(asteroid)
 
-        asteroid?.translateLocal(Vector3f(0f, 0f, 4f*dt))
+        val astronautpos = Vector3f(astronaut.getWorldPosition())
+        val toAstronaut = astronautpos.sub(asteroidpos).normalize(2f)
+        //toAstronaut.z *= -1
+
+        if (asteroid == null) Exception("")
+        else if(!collisionAstronaut.CheckCollision(listOf(asteroid))) asteroid?.translateLocal(toAstronaut.mul(4 * dt))
+        //println("asteroid${asteroid.getWorldPosition().min}")
+        //println(asteroid.getWorldPosition())
 
     }
 
@@ -302,10 +274,10 @@ class Scene(private val window: GameWindow) {
 
         ufo.render(currentShader)
 
-        saturn.render(currentShader)
+
 
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
-
+        saturn.render(currentShader)
         astronaut.render(currentShader)
 
 
@@ -397,9 +369,13 @@ class Scene(private val window: GameWindow) {
             window.getKeyState(GLFW_KEY_W) -> {
                 if (window.getKeyState(GLFW_KEY_A)) {
                     astronaut.rotateLocal(0f,1.5f * dt,0f)
+                    earth.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
+                    saturn.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
                     astronaut.rotateLocal(0f, 1.5f * -dt,0f)
+                    earth.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
+                    saturn.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_LEFT_SHIFT)  && !timeOut) {
                     fuelInUse = true
@@ -418,9 +394,11 @@ class Scene(private val window: GameWindow) {
 
                 if (window.getKeyState(GLFW_KEY_A)) {
                     astronaut.rotateLocal(0f,1.5f * dt,0f)
+                    earth.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
                     astronaut.rotateLocal(0f, 1.5f * -dt,0f)
+                    earth.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
                 }
                 astronaut.translateLocal(Vector3f(0f, 0f, revMovementSpeedFactor * dt))
             }
@@ -472,14 +450,17 @@ class Scene(private val window: GameWindow) {
                 timerCollision = 50f
             }
         }
-
+        /*
         //Astronaut Schweben
-       // if (t.toInt() % 2 == 0){
-         //   astronaut.translateLocal(Vector3f(0f,0.2f* dt,0f))
+        if (t.toInt() % 2 == 0){
+            astronaut.translateLocal(Vector3f(0f,0.2f* dt,0f))
+            camera.translateLocal(Vector3f(0f,0.2f* -dt,0f))
 
-        //} else {
-          //  astronaut.translateLocal(Vector3f(0f,-0.2f *dt,0f))
-        //}
+        } else {
+            astronaut.translateLocal(Vector3f(0f,-0.2f *dt,0f))
+            camera.translateLocal(Vector3f(0f,0.2f* dt,0f))
+        }
+        */
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
