@@ -31,26 +31,24 @@ import kotlin.math.PI
  * Created by Fabian on 16.09.2017.
  */
 class Scene(private val window: GameWindow) {
-    private val staticShader: ShaderProgram
+
+    // Shaders
     private val tronShader: ShaderProgram
     private val monoChromeRed: ShaderProgram
     private val toonShader: ShaderProgram
+    private var currentShader: ShaderProgram
 
+    // Skybox
     private val skyBoxShader: ShaderProgram
     private val skyBoxShaderMono: ShaderProgram
     private val skyBoxShaderToon: ShaderProgram
     private var currentSkyboxShader: ShaderProgram
 
+    val skybox = Skybox()
+    val skyBoxFaces = arrayListOf<String>()
 
 
-    //private var shaderNumber = 2
-
-    private var currentShader: ShaderProgram
-
-
-    private val meshListGround = mutableListOf<Mesh>()
-
-
+    // Objects
     var ufo : Renderable
     val saturn: Renderable
     var astronaut : Renderable
@@ -61,28 +59,26 @@ class Scene(private val window: GameWindow) {
     val items = arrayListOf<Renderable>()
 
 
-//    val shadowMap: ShadowMap
-
-    private var currentCamera : ICamera
+    // Cameras
     val camera = TronCamera()
     val orthocamera = OrthoCamera()
     val firstPersonCamera = TronCamera()
+    var currentCamera : ICamera
 
+    // Lights
     val dirLight : DirectionalLight
     val pointLight2 : PointLight
     val pointLight : PointLight
     val spotLight: SpotLight
+
     //MouseParam
     var notFirstFrame = false
     var oldMousePosX = 0.0
     var oldMousePosY = 0.0
 
-    val skybox = Skybox()
-    val skyBoxFaces = arrayListOf<String>()
-
+    // Jetpack
     var timeOut = false
     var fuelInUse = false
-
     val maxFuelAmount = 100f
     val jetFuelTimeOutBufferQuot = 4
     var fuelAmount = maxFuelAmount
@@ -95,12 +91,11 @@ class Scene(private val window: GameWindow) {
     var transFactor = 0.1f
 
 
-
     val collisionAstronaut : Collision
 
     //scene setup
     init {
-        staticShader = ShaderProgram("assets/shaders/simple_vert.glsl", "assets/shaders/simple_frag.glsl")
+
         tronShader = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
         skyBoxShader = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBox_frag.glsl")
         skyBoxShaderMono = ShaderProgram("assets/shaders/skyBox_vert.glsl", "assets/shaders/skyBoxMono_frag.glsl")
@@ -109,7 +104,6 @@ class Scene(private val window: GameWindow) {
         toonShader = ShaderProgram("assets/shaders/toon_vert.glsl", "assets/shaders/toon_frag.glsl")
 
         currentSkyboxShader = skyBoxShader
-        currentShader = tronShader
 
         skyBoxFaces.add("assets/textures/skybox/right.png")
         skyBoxFaces.add("assets/textures/skybox/left.png")
@@ -128,15 +122,12 @@ class Scene(private val window: GameWindow) {
         glDepthFunc(GL_LESS); GLError.checkThrow()
 
 
-        val objResGround : OBJLoader.OBJResult = OBJLoader.loadOBJ("assets/models/ground.obj")
-        val objMeshListGround : MutableList<OBJLoader.OBJMesh> = objResGround.objects[0].meshes
-
-
         orthocamera.rotateLocal(toRadians(-85f), 0f, 0f)
         orthocamera.translateLocal(Vector3f(0f, 6f, 20f))
 
         camera.rotateLocal(Math.toRadians(-35f),0f, 0f)
         camera.translateLocal(Vector3f(0f, 0f, 4f))
+
         firstPersonCamera.translateLocal(Vector3f(0f,0.75f,-1f))
 
 
@@ -163,6 +154,7 @@ class Scene(private val window: GameWindow) {
         saturn.translateGlobal(Vector3f(30f, 0f, -30f))
         //saturn.rotateLocal(toRadians(90f),0f,0f)
         astronaut.scaleLocal(Vector3f(0.4f))
+
         camera.parent = astronaut
         firstPersonCamera.parent = astronaut
 
@@ -207,16 +199,22 @@ class Scene(private val window: GameWindow) {
         dirLight = DirectionalLight(Vector3f(-1f, 0f, 0f), Vector3f(1f,1f,1f))
         spotLight.rotateLocal(toRadians(-10f), PI.toFloat(),0f)
 
+        camera.parent = astronaut
+        firstPersonCamera.parent = astronaut
+
         pointLight.parent = astronaut
         spotLight.parent = astronaut
         earth.parent = astronaut
         saturn.parent = astronaut
+        moon.parent = earth
         moon.scaleLocal(Vector3f(10f))
         moon.translateLocal(Vector3f(0f,0f,10f))
-        moon.parent = earth
+
+
+
 
         currentCamera = camera
-
+        currentShader = tronShader
 
         collisionAstronaut = Collision(astronaut)
     }
@@ -257,30 +255,27 @@ class Scene(private val window: GameWindow) {
 
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
-
         skybox.render(currentSkyboxShader, currentCamera.getCalculateViewMatrix(), currentCamera.getCalculateProjectionMatrix())
 
-
         currentShader.use()
-//        shadowMap.setShadowUniforms(currentShader)
+
         if (blinn) currentShader.setUniform("blinn", 1)
         else currentShader.setUniform("blinn", 0)
 
         currentCamera.bind(currentShader)
+
         dirLight.bind(currentShader, "dirLight",currentCamera.getCalculateViewMatrix())
         spotLight.bind(currentShader, "spotLight", currentCamera.getCalculateViewMatrix())
         pointLight.bind(currentShader, "pointLight")
         pointLight2.bind(currentShader, "pointLight2")
 
-        ufo.render(currentShader)
-
-
-
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
+
         saturn.render(currentShader)
         astronaut.render(currentShader)
         moon.render(currentShader)
 
+        ufo.render(currentShader)
 
         for (i in asteroids){
             i.render(currentShader)
@@ -308,6 +303,7 @@ class Scene(private val window: GameWindow) {
         moon.rotateAroundPoint(0f, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateAroundPoint(0.05f * dt, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateLocal(0f,0.05f * dt,0f)
+
         //moon.ro
         for(a in asteroids) {
             asteroidLogic(a, dt)
@@ -384,13 +380,9 @@ class Scene(private val window: GameWindow) {
                 if (window.getKeyState(GLFW_KEY_LEFT_SHIFT)  && !timeOut) {
                     fuelInUse = true
                     fuelAmount -= 40 * dt
-                   astronaut.translateLocal(Vector3f(0f, 0f, accMovementSpeedFactor * -dt))
-
-
+                    astronaut.translateLocal(Vector3f(0f, 0f, accMovementSpeedFactor * -dt))
                 }
-
                 else {
-
                     astronaut.translateLocal(Vector3f(0f, 0f, norMovementSpeedFactor * -dt))
                 }
             }
@@ -482,14 +474,13 @@ class Scene(private val window: GameWindow) {
 
             else if (currentCamera == firstPersonCamera) {
                 astronaut.rotateLocal(0f, -toRadians(deltaX.toFloat() * 0.05f), 0f)
+
+                // negate parent rotation
                 saturn.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
                 earth.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
             }
 
 
-            //camera.rotateAroundPoint(toRadians(deltaX.toFloat() * 0.03f), 0f, 0f, Vector3f(0f))
-
-            //camera.setZAxis(camZ)
         }
 
         notFirstFrame = true
@@ -499,15 +490,12 @@ class Scene(private val window: GameWindow) {
     fun onMouseScroll(xoffset: Double, yoffset: Double){
 
         if (yoffset>0){
-            if (camera.getWorldPosition().y >= 0.65) {
+            if (camera.getWorldPosition().y >= 0.66)
                 camera.translateLocal(Vector3f(0f, 0.04f*yoffset.toFloat(), -0.1f*yoffset.toFloat()))
-                println(camera.getWorldPosition())
-        }
         }
         else if (yoffset<0){
             if (camera.getWorldPosition().y <= 1.25)
-            camera.translateLocal(Vector3f(0f, 0.04f*yoffset.toFloat(), -0.1f*yoffset.toFloat()))
-            println(camera.getWorldPosition())
+                camera.translateLocal(Vector3f(0f, 0.04f*yoffset.toFloat(), -0.1f*yoffset.toFloat()))
         }
     }
 
