@@ -17,7 +17,8 @@ class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
     private var programID: Int = 0
     //Matrix buffers for setting matrix uniforms. Prevents allocation for each uniform
     private val m4x4buf: FloatBuffer = BufferUtils.createFloatBuffer(16)
-     /**
+    private val m3x3buf: FloatBuffer = BufferUtils.createFloatBuffer(9)
+    /**
      * Sets the active shader program of the OpenGL render pipeline to this shader
      * if this isn't already the currently active shader
      */
@@ -40,6 +41,17 @@ class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
         if (loc != -1) {
             value[m4x4buf]
             GL20.glUniformMatrix4fv(loc, transpose, m4x4buf)
+            return true
+        }
+        return false
+    }
+
+    fun setUniform(name: String, value: Matrix3f, transpose: Boolean): Boolean {
+        if (programID == 0) return false
+        val loc = GL20.glGetUniformLocation(programID, name)
+        if (loc != -1) {
+            value[m3x3buf]
+            GL20.glUniformMatrix3fv(loc, transpose, m3x3buf)
             return true
         }
         return false

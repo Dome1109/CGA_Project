@@ -12,6 +12,7 @@ uniform vec2 tcMultiplier;
 uniform vec3 pointLightPos;
 uniform vec3 pointLight2Pos;
 uniform vec3 spotLightPos;
+uniform mat3 textureTransform;
 
 out struct VertexData
 {
@@ -34,7 +35,9 @@ void main(){
     vec4 norm = transpose(inverse(modelview)) * vec4(normals, 0.0);
     gl_Position = pos;
     vertexData.normale = norm.xyz;
-    vertexData.tc =  texCoord * tcMultiplier;
+
+    vec3 transformedTC = textureTransform * vec3(texCoord, 1.0);
+    vertexData.tc = vec2(transformedTC) * tcMultiplier;
 
     vec4 lp = view * vec4(pointLightPos, 1.0);
     vec4 lp3 = view * vec4(pointLight2Pos, 1.0);
