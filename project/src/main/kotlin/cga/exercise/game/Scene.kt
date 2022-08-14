@@ -7,23 +7,19 @@ import cga.exercise.components.Misc.MusicPlayer
 import cga.exercise.components.camera.ICamera
 import cga.exercise.components.camera.OrthoCamera
 import cga.exercise.components.camera.TronCamera
-import cga.exercise.components.geometry.Material
 import cga.exercise.components.geometry.Mesh
 import cga.exercise.components.geometry.Renderable
-import cga.exercise.components.geometry.VertexAttribute
 import cga.exercise.components.light.DirectionalLight
 import cga.exercise.components.light.PointLight
 import cga.exercise.components.light.SpotLight
 import cga.exercise.components.shader.ShaderProgram
 import cga.exercise.components.texture.Skybox
-import cga.exercise.components.texture.Texture2D
 import cga.framework.GLError
 import cga.framework.GameWindow
 import cga.framework.ModelLoader
 import cga.framework.OBJLoader
 import org.joml.Math
 import org.joml.Math.*
-import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
@@ -60,6 +56,7 @@ class Scene(private val window: GameWindow) {
     var astronaut : Renderable
     val asteroids = arrayListOf<Renderable>()
     val earth : Renderable
+    val moon: Renderable
     val shuttle : Renderable
     val items = arrayListOf<Renderable>()
 
@@ -152,7 +149,7 @@ class Scene(private val window: GameWindow) {
         astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
-
+        moon = ModelLoader.loadModel("assets/moon/Moon 2K.obj", 0f, toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
         shuttle = ModelLoader.loadModel("assets/shuttle/shuttle.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
@@ -214,6 +211,9 @@ class Scene(private val window: GameWindow) {
         spotLight.parent = astronaut
         earth.parent = astronaut
         saturn.parent = astronaut
+        moon.scaleLocal(Vector3f(10f))
+        moon.translateLocal(Vector3f(0f,0f,10f))
+        moon.parent = earth
 
         currentCamera = camera
 
@@ -246,7 +246,7 @@ class Scene(private val window: GameWindow) {
         //toAstronaut.z *= -1
 
         if (asteroid == null) Exception("")
-        else if(!collisionAstronaut.CheckCollision(listOf(asteroid))) asteroid?.translateLocal(toAstronaut.mul(4 * dt))
+        else if(!collisionAstronaut.checkCollision(listOf(asteroid))) asteroid?.translateLocal(toAstronaut.mul(4 * dt))
         //println("asteroid${asteroid.getWorldPosition().min}")
         //println(asteroid.getWorldPosition())
 
@@ -279,6 +279,7 @@ class Scene(private val window: GameWindow) {
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
         saturn.render(currentShader)
         astronaut.render(currentShader)
+        moon.render(currentShader)
 
 
         for (i in asteroids){
@@ -303,8 +304,11 @@ class Scene(private val window: GameWindow) {
     }
 
     fun update(dt: Float, t: Float) {
-
-
+        earth.rotateLocal(0f, 0.05f * dt,0f)
+        moon.rotateAroundPoint(0f, 0.05f * -dt, 0f, Vector3f(0f))
+        moon.rotateAroundPoint(0.05f * dt, 0.05f * -dt, 0f, Vector3f(0f))
+        moon.rotateLocal(0f,0.05f * dt,0f)
+        //moon.ro
         for(a in asteroids) {
             asteroidLogic(a, dt)
         }
@@ -422,7 +426,7 @@ class Scene(private val window: GameWindow) {
 
         }
 
-        if (collisionAstronaut.CheckCollision(asteroids)){
+        if (collisionAstronaut.checkCollision(asteroids)){
             println("Kollision mit Asteroid")
         }
 
@@ -431,7 +435,7 @@ class Scene(private val window: GameWindow) {
         //println(timerCollision)
 
         // Shader-Wechsel bei Aufsammeln eines Items
-        if (collisionAstronaut.CheckCollision(items)){
+        if (collisionAstronaut.checkCollision(items)){
             println("Kollision mit Item")
 
             if (currentShader == tronShader && timerCollision <= 0){
@@ -476,8 +480,12 @@ class Scene(private val window: GameWindow) {
             if (currentCamera == camera)
                 camera.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
 
-            else if (currentCamera == firstPersonCamera)
+            else if (currentCamera == firstPersonCamera) {
                 astronaut.rotateLocal(0f, -toRadians(deltaX.toFloat() * 0.05f), 0f)
+                saturn.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+                earth.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+            }
+
 
             //camera.rotateAroundPoint(toRadians(deltaX.toFloat() * 0.03f), 0f, 0f, Vector3f(0f))
 
