@@ -8,7 +8,7 @@ class Asteroid (val player: Renderable, val collision: Collision, val asteroid :
 
     private var toPlayer = Vector3f()
     private var velocity = 0f
-    private val maxDistence = 30f
+    private val maxDistence = 40f
     private var distance = maxDistence
 
     init {
@@ -18,7 +18,8 @@ class Asteroid (val player: Renderable, val collision: Collision, val asteroid :
     fun update(dt: Float) {
         if (distance > 0 && !collision.checkCollision(asteroid)) {
             println("working")
-            asteroid.first.translateGlobal(toPlayer.mul(velocity * dt))
+            val tP = Vector3f(toPlayer)
+            asteroid.first.translateGlobal(tP.mul(velocity * dt))
             distance-= velocity * dt
             println(toPlayer)
         }
@@ -27,14 +28,15 @@ class Asteroid (val player: Renderable, val collision: Collision, val asteroid :
 
     fun reset() {
         val playerPos = player.getWorldPosition()
-        val toPlayer = playerPos.sub(asteroid.first.getWorldPosition())
-        val randomOffset = -kotlin.random.Random.nextInt(10,30).toFloat()
+        val pos = Vector3f(playerPos)
+        val toPlayerFirst = pos.sub(asteroid.first.getWorldPosition())
+        val randomOffset = -kotlin.random.Random.nextInt(20,40).toFloat()
 
-        asteroid.first.translateGlobal(toPlayer)
-        asteroid.first.translateGlobal(Vector3f(0f,0f,randomOffset))
+        asteroid.first.translateGlobal(toPlayerFirst.add(0f,0f,randomOffset))
 
-        this.velocity = kotlin.random.Random.nextDouble(4.0,8.0).toFloat()
-        this.toPlayer = playerPos.sub(asteroid.first.getWorldPosition())
+
+        velocity = kotlin.random.Random.nextDouble(2.0,8.0).toFloat()
+        toPlayer = playerPos.sub(asteroid.first.getWorldPosition()).normalize()
 
         distance = maxDistence
     }
