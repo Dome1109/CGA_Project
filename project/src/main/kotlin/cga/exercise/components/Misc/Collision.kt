@@ -55,10 +55,9 @@ class Collision (val char: Renderable) {
     fun checkCollision (r: Pair<Renderable, Vector2f>) :Boolean{
         val charX = char.getWorldPosition().x
         val charZ = char.getWorldPosition().z
-
         val rX = r.first.getWorldPosition().x
         val rZ = r.first.getWorldPosition().z
-        val collisionX = charX + 1.2f >= rX && rX+ r.second.x >= charX
+        val collisionX = charX + 1.2f >= rX && rX + r.second.x >= charX
         val collisionZ = charZ + 1.2f >= rZ && rZ + r.second.y >= charZ
         return collisionX && collisionZ
     }

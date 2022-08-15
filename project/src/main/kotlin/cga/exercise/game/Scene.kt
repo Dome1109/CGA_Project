@@ -2,6 +2,7 @@ package cga.exercise.game
 
 //import cga.exercise.components.texture.ShadowMap
 
+import cga.exercise.components.Misc.Asteroid
 import cga.exercise.components.Misc.Collision
 import cga.exercise.components.Misc.MusicPlayer
 import cga.exercise.components.camera.ICamera
@@ -89,9 +90,10 @@ class Scene(private val window: GameWindow) {
 
     var accTransValue = 0f
     var transFactor = 0.1f
-
+    val ufoBoudingBox : Pair<Renderable, Vector2f>
 
     val collisionAstronaut : Collision
+    val listOfAsteroids = arrayListOf<Asteroid>()
 
     //scene setup
     init {
@@ -183,14 +185,18 @@ class Scene(private val window: GameWindow) {
         asteroids[1].translateLocal(Vector3f(-5f,3f,-60f))
         asteroids[2].translateLocal(Vector3f(15f,10f,-90f))
 
+        collisionAstronaut = Collision(astronaut)
 
-        MusicPlayer.playMusic("assets/music/spaceMusicV3.wav")
+        for (a in asteroids) listOfAsteroids.add(Asteroid(astronaut, collisionAstronaut, Pair(a,Vector2f(2f))))
+
+
+        MusicPlayer.playMusic("assets/music/spaceMusicV4.wav")
 
         orthocamera.parent = astronaut
         orthocamera.multiplier = 1.1f
         pointLight = PointLight(Vector3f(0f, 2f, 0f), Vector3f(1f, 1f, 0f),
                 Vector3f(1f, 0.5f, 0.1f))
-        pointLight2 = PointLight(Vector3f(0f, 2f, 5f), Vector3f(0f, 1f, 0f),
+        pointLight2 = PointLight(Vector3f(0f, 2f, 0f), Vector3f(0f, 1f, 0f),
             Vector3f(1f, 0.5f, 0.1f))
 
         spotLight = SpotLight(Vector3f(0f, 1f, -2f), Vector3f(1f,1f,0.6f),
@@ -210,13 +216,13 @@ class Scene(private val window: GameWindow) {
         moon.scaleLocal(Vector3f(10f))
         moon.translateLocal(Vector3f(0f,0f,10f))
 
-
+        ufoBoudingBox = Pair(ufo, Vector2f(4f,4f))
 
 
         currentCamera = camera
         currentShader = tronShader
 
-        collisionAstronaut = Collision(astronaut)
+
     }
 
 
@@ -238,13 +244,21 @@ class Scene(private val window: GameWindow) {
         //val oldPos = asteroid?.getWorldPosition()
         val asteroidpos = Vector3f(asteroid?.getWorldPosition())
         //var coord_asteroid = getXandZ_coord(asteroid)
-
+        val isColliding: Boolean
         val astronautpos = Vector3f(astronaut.getWorldPosition())
         val toAstronaut = astronautpos.sub(asteroidpos).normalize(2f)
         //toAstronaut.z *= -1
+        if (asteroid == null) {
+            isColliding = false
+            Exception("")
+        }
+        else {
+            isColliding = collisionAstronaut.checkCollision(listOf(asteroid))
+        }
+        if (isColliding) astronaut.translateGlobal(Vector3f(toAstronaut.x, 0f, toAstronaut.z))
+        else asteroid?.translateGlobal(toAstronaut.mul(1* dt))
 
-        if (asteroid == null) Exception("")
-        else if(!collisionAstronaut.checkCollision(listOf(asteroid))) asteroid?.translateLocal(toAstronaut.mul(4 * dt))
+
         //println("asteroid${asteroid.getWorldPosition().min}")
         //println(asteroid.getWorldPosition())
 
@@ -270,12 +284,13 @@ class Scene(private val window: GameWindow) {
         pointLight2.bind(currentShader, "pointLight2")
 
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
+        earth.render(currentShader)
 
         saturn.render(currentShader)
         astronaut.render(currentShader)
         moon.render(currentShader)
-
-        ufo.render(currentShader)
+        currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
+        shuttle.render(currentShader)
 
         for (i in asteroids){
             i.render(currentShader)
@@ -285,17 +300,23 @@ class Scene(private val window: GameWindow) {
             i.render(currentShader)
         }
 
-        earth.render(currentShader)
-        shuttle.render(currentShader)
+        currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
+        ufo.render(currentShader)
 
 
         //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
-        currentShader.setUniform("farbe", Vector3f(0f,1f,0f))
+
 
         //ground.render(currentShader)
 
 
+    }
+    fun collisionResponse (p : Pair<Renderable, Vector2f>) {
+        if (collisionAstronaut.checkCollision(p)) {
+        val dirVector = astronaut.getWorldPosition().sub(p.first.getWorldPosition()).normalize(0.1f)
+        astronaut.translateGlobal(Vector3f(dirVector.x, 0f, dirVector.z))
+        }
     }
 
     fun update(dt: Float, t: Float) {
@@ -303,12 +324,22 @@ class Scene(private val window: GameWindow) {
         moon.rotateAroundPoint(0f, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateAroundPoint(0.05f * dt, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateLocal(0f,0.05f * dt,0f)
+        //println(collisionAstronaut.checkCollision(ufoBoudingBox))
+        //println(collisionAstronaut.checkCollision(Pair(shuttle, Vector2f(8f, 2.3f))))
 
-        //moon.ro
+        collisionResponse(Pair(shuttle,Vector2f(8f,2f)))
+
+        for (a in listOfAsteroids) a.update(dt)
+
+        if (collisionAstronaut.checkCollision(ufoBoudingBox)) {
+            val dirVector = astronaut.getWorldPosition().sub(ufo.getWorldPosition()).normalize(0.1f)
+            astronaut.translateGlobal(Vector3f(dirVector.x, 0f, dirVector.z))
+        }
+        /*
         for(a in asteroids) {
             asteroidLogic(a, dt)
         }
-
+        */
         if (window.getKeyState(GLFW_KEY_L)) ufo.rotateLocal(1.5f * dt,0f,0f)
 
         if (window.getKeyState(GLFW_KEY_1)) {
@@ -344,8 +375,6 @@ class Scene(private val window: GameWindow) {
         val norMovementSpeedFactor = 10
         val accMovementSpeedFactor = 20
         val revMovementSpeedFactor = 2
-
-
 
 
         saturn.rotateLocal(0f,0f, 0.2f *dt)
@@ -391,10 +420,12 @@ class Scene(private val window: GameWindow) {
                 if (window.getKeyState(GLFW_KEY_A)) {
                     astronaut.rotateLocal(0f,1.5f * dt,0f)
                     earth.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
+                    saturn.rotateAroundPoint(0f, 1.5f * -dt,0f,Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
                     astronaut.rotateLocal(0f, 1.5f * -dt,0f)
                     earth.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
+                    saturn.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
                 }
                 astronaut.translateLocal(Vector3f(0f, 0f, revMovementSpeedFactor * dt))
             }
