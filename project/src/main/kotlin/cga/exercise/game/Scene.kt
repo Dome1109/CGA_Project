@@ -58,6 +58,8 @@ class Scene(private val window: GameWindow) {
     val moon: Renderable
     val shuttle : Renderable
     val items = arrayListOf<Renderable>()
+    val smallFlame : Renderable
+    val bigFlame : Renderable
 
 
     // Cameras
@@ -94,6 +96,8 @@ class Scene(private val window: GameWindow) {
 
     val collisionAstronaut : Collision
     val listOfAsteroids = arrayListOf<Asteroid>()
+
+    var bigFlameRender : Boolean = false
 
     //scene setup
     init {
@@ -139,18 +143,21 @@ class Scene(private val window: GameWindow) {
         saturn = ModelLoader.loadModel("assets/saturn/Saturn_V1.obj",
             toRadians(0f), toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
 
-        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
+        astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
 
-        earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
-        moon = ModelLoader.loadModel("assets/moon/Moon 2K.obj", 0f, toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
-        shuttle = ModelLoader.loadModel("assets/shuttle/shuttle.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
+        smallFlame = ModelLoader.loadModel("assets/flames/small_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        bigFlame = ModelLoader.loadModel("assets/flames/big_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+
+        earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        moon = ModelLoader.loadModel("assets/moon/Moon 2K.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        shuttle = ModelLoader.loadModel("assets/shuttle/shuttle.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
 
         asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
-        asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(90f),0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, 0f,0f)?: throw Exception("Renderable can't be NULL!"))
 
-        items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!"))
-        items.add(ModelLoader.loadModel("assets/screw/screw.obj", 0f, toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!"))
+        items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
+        items.add(ModelLoader.loadModel("assets/screw/screw.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
 
         saturn.scaleLocal(Vector3f(0.01f))
         saturn.translateGlobal(Vector3f(30f, 0f, -30f))
@@ -208,6 +215,8 @@ class Scene(private val window: GameWindow) {
         camera.parent = astronaut
         firstPersonCamera.parent = astronaut
 
+        smallFlame.parent = astronaut
+        bigFlame.parent = astronaut
         pointLight.parent = astronaut
         spotLight.parent = astronaut
         earth.parent = astronaut
@@ -288,6 +297,10 @@ class Scene(private val window: GameWindow) {
 
         saturn.render(currentShader)
         astronaut.render(currentShader)
+
+        smallFlame.render(currentShader)
+        if (bigFlameRender) bigFlame.render(currentShader)
+
         moon.render(currentShader)
         currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
         shuttle.render(currentShader)
@@ -410,9 +423,11 @@ class Scene(private val window: GameWindow) {
                     fuelInUse = true
                     fuelAmount -= 40 * dt
                     astronaut.translateLocal(Vector3f(0f, 0f, accMovementSpeedFactor * -dt))
+                    bigFlameRender = true
                 }
                 else {
                     astronaut.translateLocal(Vector3f(0f, 0f, norMovementSpeedFactor * -dt))
+                    bigFlameRender = false
                 }
             }
             window.getKeyState(GLFW_KEY_S) -> {
