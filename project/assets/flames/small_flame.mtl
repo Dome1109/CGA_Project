@@ -12,3 +12,4 @@ d 1.000000
 illum 2
 map_Kd Material.011 Base Color.png
 map_Ks Material.011 Specular.png
+map_Ke Material.011 Emissive.png

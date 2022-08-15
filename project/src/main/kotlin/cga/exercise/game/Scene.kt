@@ -299,8 +299,7 @@ class Scene(private val window: GameWindow) {
         saturn.render(currentShader)
         astronaut.render(currentShader)
 
-        smallFlame.render(currentShader)
-        if (bigFlameRender) bigFlame.render(currentShader)
+
 
         moon.render(currentShader)
         currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
@@ -317,7 +316,8 @@ class Scene(private val window: GameWindow) {
         currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
         ufo.render(currentShader)
 
-
+        smallFlame.render(currentShader)
+        if (bigFlameRender) bigFlame.render(currentShader)
         //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
 
@@ -340,7 +340,8 @@ class Scene(private val window: GameWindow) {
         moon.rotateLocal(0f,0.05f * dt,0f)
         //println(collisionAstronaut.checkCollision(ufoBoudingBox))
         //println(collisionAstronaut.checkCollision(Pair(shuttle, Vector2f(8f, 2.3f))))
-
+        smallFlame.translateTexture(Vector2f(15f*dt,0f))
+        bigFlame.translateTexture(Vector2f(15*dt,0f))
         collisionResponse(Pair(shuttle,Vector2f(8f,2f)))
 
         for (a in listOfAsteroids) a.update(dt)
