@@ -172,6 +172,7 @@ class Scene(private val window: GameWindow) {
 
         shuttle.scaleLocal(Vector3f(0.5f))
         shuttle.translateLocal(Vector3f(-20f,0f,-20f))
+        shuttle.translateLocal(Vector3f(-10f,0f,-20f))
 
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(-40f, 40f, -200f))
