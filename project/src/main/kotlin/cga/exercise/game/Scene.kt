@@ -160,7 +160,7 @@ class Scene(private val window: GameWindow) {
         mercury = ModelLoader.loadModel("assets/mercury/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         venus = ModelLoader.loadModel("assets/venus/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         moon = ModelLoader.loadModel("assets/moon/Moon 2K.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
-        shuttle = ModelLoader.loadModel("assets/shuttle/shuttle.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        shuttle = ModelLoader.loadModel("assets/shuttle/shuttle_destroyed.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
 
         asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
@@ -292,7 +292,7 @@ class Scene(private val window: GameWindow) {
 
         astronaut.render(currentShader)
 
-        currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
+        //currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
         shuttle.render(currentShader)
 
         for (i in asteroids){
