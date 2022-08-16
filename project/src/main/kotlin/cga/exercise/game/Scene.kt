@@ -56,6 +56,10 @@ class Scene(private val window: GameWindow) {
     val asteroids = arrayListOf<Renderable>()
     val earth : Renderable
     val moon: Renderable
+    val mars : Renderable
+    val jupiter : Renderable
+    val mercury : Renderable
+    val venus : Renderable
     val shuttle : Renderable
     val items = arrayListOf<Renderable>()
     val smallFlame : Renderable
@@ -149,6 +153,10 @@ class Scene(private val window: GameWindow) {
         bigFlame = ModelLoader.loadModel("assets/flames/big_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
 
         earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        mars = ModelLoader.loadModel("assets/mars/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        jupiter = ModelLoader.loadModel("assets/jupiter/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        mercury = ModelLoader.loadModel("assets/mercury/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        venus = ModelLoader.loadModel("assets/venus/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         moon = ModelLoader.loadModel("assets/moon/Moon 2K.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         shuttle = ModelLoader.loadModel("assets/shuttle/shuttle.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
 
@@ -159,17 +167,25 @@ class Scene(private val window: GameWindow) {
         items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/screw/screw.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
 
-        saturn.scaleLocal(Vector3f(0.05f))
-        saturn.translateGlobal(Vector3f(120f, 0f, -160f))
-        saturn.rotateLocal(toRadians(-20f),0f, toRadians(30f))
+        saturn.scaleLocal(Vector3f(0.04f))
+        saturn.translateGlobal(Vector3f(-150f, 20f, -100f))
         //saturn.rotateLocal(toRadians(90f),0f,0f)
         astronaut.scaleLocal(Vector3f(0.4f))
 
-        camera.parent = astronaut
-        firstPersonCamera.parent = astronaut
-
         earth.scaleLocal(Vector3f(0.3f))
-        earth.translateLocal(Vector3f(-200f,0f,-200f))
+        earth.translateLocal(Vector3f(100f,0f,-300f))
+
+        mars.scaleLocal(Vector3f(0.05f))
+        mars.translateLocal(Vector3f(-1000f,-200f,-2000f))
+
+        jupiter.scaleLocal(Vector3f(0.4f))
+        jupiter.translateLocal(Vector3f(-550f,0f,200f))
+
+        mercury.scaleLocal(Vector3f(0.05f))
+        mercury.translateLocal(Vector3f(3000f,0f,0f))
+
+        venus.scaleLocal(Vector3f(0.3f))
+        venus.translateLocal(Vector3f(700f,-20f,500f))
 
         shuttle.scaleLocal(Vector3f(0.5f))
         shuttle.translateLocal(Vector3f(-20f,0f,-20f))
@@ -223,6 +239,10 @@ class Scene(private val window: GameWindow) {
         spotLight.parent = astronaut
         earth.parent = astronaut
         saturn.parent = astronaut
+        mars.parent = astronaut
+        jupiter.parent = astronaut
+        mercury.parent = astronaut
+        venus.parent = astronaut
         moon.parent = earth
         moon.scaleLocal(Vector3f(10f))
         moon.translateLocal(Vector3f(0f,0f,10f))
@@ -257,14 +277,17 @@ class Scene(private val window: GameWindow) {
         pointLight2.bind(currentShader, "pointLight2")
 
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
-        earth.render(currentShader)
 
+        earth.render(currentShader)
+        mars.render(currentShader)
+        jupiter.render(currentShader)
+        mercury.render(currentShader)
+        venus.render(currentShader)
         saturn.render(currentShader)
+        moon.render(currentShader)
+
         astronaut.render(currentShader)
 
-
-
-        moon.render(currentShader)
         currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
         shuttle.render(currentShader)
 
@@ -369,11 +392,19 @@ class Scene(private val window: GameWindow) {
                     astronaut.rotateLocal(0f,1.5f * dt,0f)
                     earth.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
                     saturn.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
+                    mars.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
+                    jupiter.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
+                    mercury.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
+                    venus.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
                     astronaut.rotateLocal(0f, 1.5f * -dt,0f)
                     earth.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
                     saturn.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
+                    mars.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
+                    jupiter.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
+                    mercury.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
+                    venus.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_LEFT_SHIFT)  && !timeOut) {
                     fuelInUse = true
@@ -392,11 +423,19 @@ class Scene(private val window: GameWindow) {
                     astronaut.rotateLocal(0f,1.5f * dt,0f)
                     earth.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
                     saturn.rotateAroundPoint(0f, 1.5f * -dt,0f,Vector3f(0f))
+                    mars.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
+                    jupiter.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
+                    mercury.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
+                    venus.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
                     astronaut.rotateLocal(0f, 1.5f * -dt,0f)
                     earth.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
                     saturn.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
+                    mars.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
+                    jupiter.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
+                    mercury.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
+                    venus.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
                 }
                 astronaut.translateLocal(Vector3f(0f, 0f, revMovementSpeedFactor * dt))
             }
@@ -470,6 +509,10 @@ class Scene(private val window: GameWindow) {
                 // negate parent rotation
                 saturn.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
                 earth.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+                mars.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+                jupiter.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+                mercury.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+                venus.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
             }
 
 
