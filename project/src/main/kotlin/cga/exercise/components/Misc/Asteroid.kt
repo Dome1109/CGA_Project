@@ -17,11 +17,9 @@ class Asteroid (val player: Renderable, val collision: Collision, val asteroid :
 
     fun update(dt: Float) {
         if (distance > 0 && !collision.checkCollision(asteroid)) {
-            println("working")
             val tP = Vector3f(toPlayer)
             asteroid.first.translateGlobal(tP.mul(velocity * dt))
             distance-= velocity * dt
-            println(toPlayer)
         }
         else reset()
     }

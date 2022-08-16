@@ -57,8 +57,8 @@ class Collision (val char: Renderable) {
         val charZ = char.getWorldPosition().z
         val rX = r.first.getWorldPosition().x
         val rZ = r.first.getWorldPosition().z
-        val collisionX = charX + 1.2f >= rX && rX + r.second.x >= charX
-        val collisionZ = charZ + 1.2f >= rZ && rZ + r.second.y >= charZ
+        val collisionX = (charX + 1.2f >= rX && rX + r.second.x >= charX) || (charX - 1.2f <= rX && rX - r.second.x <= charX)
+        val collisionZ = (charZ + 1.2f >= rZ && rZ + r.second.y >= charZ) || (charZ - 1.2f <= rZ && rZ - r.second.y <= charZ)
         return collisionX && collisionZ
     }
 

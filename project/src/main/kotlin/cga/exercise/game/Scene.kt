@@ -141,7 +141,7 @@ class Scene(private val window: GameWindow) {
             toRadians(180f), toRadians(90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         saturn = ModelLoader.loadModel("assets/saturn/Saturn_V1.obj",
-            toRadians(0f), toRadians(0f), 0f)?: throw Exception("Renderable can't be NULL!")
+            toRadians(0f), toRadians(0f), toRadians(0f)) ?: throw Exception("Renderable can't be NULL!")
 
         astronaut = ModelLoader.loadModel("assets/astronaut/astronaut.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
 
@@ -159,8 +159,9 @@ class Scene(private val window: GameWindow) {
         items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/screw/screw.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
 
-        saturn.scaleLocal(Vector3f(0.01f))
-        saturn.translateGlobal(Vector3f(30f, 0f, -30f))
+        saturn.scaleLocal(Vector3f(0.05f))
+        saturn.translateGlobal(Vector3f(120f, 0f, -160f))
+        saturn.rotateLocal(toRadians(-20f),0f, toRadians(30f))
         //saturn.rotateLocal(toRadians(90f),0f,0f)
         astronaut.scaleLocal(Vector3f(0.4f))
 
@@ -195,7 +196,7 @@ class Scene(private val window: GameWindow) {
 
         collisionAstronaut = Collision(astronaut)
 
-        for (a in asteroids) listOfAsteroids.add(Asteroid(astronaut, collisionAstronaut, Pair(a,Vector2f(2f))))
+        for (a in asteroids) listOfAsteroids.add(Asteroid(astronaut, collisionAstronaut, Pair(a,Vector2f(1.8f))))
 
 
         MusicPlayer.playMusic("assets/music/spaceMusicV4.wav")
@@ -226,7 +227,7 @@ class Scene(private val window: GameWindow) {
         moon.scaleLocal(Vector3f(10f))
         moon.translateLocal(Vector3f(0f,0f,10f))
 
-        ufoBoudingBox = Pair(ufo, Vector2f(4f,4f))
+        ufoBoudingBox = Pair(ufo, Vector2f(3f,3f))
 
 
         currentCamera = camera
@@ -235,44 +236,6 @@ class Scene(private val window: GameWindow) {
 
     }
 
-
-    fun getXandZ_coord(asteroid : Renderable?): Pair<Float, Float>{
-
-
-        //Gleiche für das bewegende Objekt
-        val asteroidX = asteroid?.getWorldPosition();
-        val asteroidY = asteroid?.getWorldPosition();
-
-        val ex = asteroidX!!.x;
-        val ey = asteroidY!!.z;
-
-
-        return Pair(ex, ey)
-    }
-
-    fun asteroidLogic (asteroid: Renderable?, dt:Float) {
-        //val oldPos = asteroid?.getWorldPosition()
-        val asteroidpos = Vector3f(asteroid?.getWorldPosition())
-        //var coord_asteroid = getXandZ_coord(asteroid)
-        val isColliding: Boolean
-        val astronautpos = Vector3f(astronaut.getWorldPosition())
-        val toAstronaut = astronautpos.sub(asteroidpos).normalize(2f)
-        //toAstronaut.z *= -1
-        if (asteroid == null) {
-            isColliding = false
-            Exception("")
-        }
-        else {
-            isColliding = collisionAstronaut.checkCollision(listOf(asteroid))
-        }
-        if (isColliding) astronaut.translateGlobal(Vector3f(toAstronaut.x, 0f, toAstronaut.z))
-        else asteroid?.translateGlobal(toAstronaut.mul(1* dt))
-
-
-        //println("asteroid${asteroid.getWorldPosition().min}")
-        //println(asteroid.getWorldPosition())
-
-    }
 
 
     fun render(dt: Float, t: Float) {
@@ -321,10 +284,6 @@ class Scene(private val window: GameWindow) {
         //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
 
-
-        //ground.render(currentShader)
-
-
     }
     fun collisionResponse (p : Pair<Renderable, Vector2f>) {
         if (collisionAstronaut.checkCollision(p)) {
@@ -334,15 +293,16 @@ class Scene(private val window: GameWindow) {
     }
 
     fun update(dt: Float, t: Float) {
+
         earth.rotateLocal(0f, 0.05f * dt,0f)
         moon.rotateAroundPoint(0f, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateAroundPoint(0.05f * dt, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateLocal(0f,0.05f * dt,0f)
-        //println(collisionAstronaut.checkCollision(ufoBoudingBox))
-        //println(collisionAstronaut.checkCollision(Pair(shuttle, Vector2f(8f, 2.3f))))
+
         smallFlame.translateTexture(Vector2f(15f*dt,0f))
         bigFlame.translateTexture(Vector2f(15*dt,0f))
-        collisionResponse(Pair(shuttle,Vector2f(8f,2f)))
+
+        collisionResponse(Pair(shuttle,Vector2f(4f,1.8f)))
 
         for (a in listOfAsteroids) a.update(dt)
 
@@ -350,11 +310,6 @@ class Scene(private val window: GameWindow) {
             val dirVector = astronaut.getWorldPosition().sub(ufo.getWorldPosition()).normalize(0.1f)
             astronaut.translateGlobal(Vector3f(dirVector.x, 0f, dirVector.z))
         }
-        /*
-        for(a in asteroids) {
-            asteroidLogic(a, dt)
-        }
-        */
         if (window.getKeyState(GLFW_KEY_L)) ufo.rotateLocal(1.5f * dt,0f,0f)
 
         if (window.getKeyState(GLFW_KEY_1)) {
@@ -376,7 +331,6 @@ class Scene(private val window: GameWindow) {
         }
         if (window.getKeyState(GLFW_KEY_N)){
             blinn = false
-            println("N_KEY pressed")
         }
 
         if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
@@ -392,7 +346,7 @@ class Scene(private val window: GameWindow) {
         val revMovementSpeedFactor = 2
 
 
-        saturn.rotateLocal(0f,0f, 0.2f *dt)
+        saturn.rotateLocal(0.01f *dt,0.2f *dt, 0f)
 
         //ufo Movement
         ufo.rotateLocal(0f,0.9f *dt,0f)
@@ -494,17 +448,7 @@ class Scene(private val window: GameWindow) {
                 timerCollision = 50f
             }
         }
-        /*
-        //Astronaut Schweben
-        if (t.toInt() % 2 == 0){
-            astronaut.translateLocal(Vector3f(0f,0.2f* dt,0f))
-            camera.translateLocal(Vector3f(0f,0.2f* -dt,0f))
 
-        } else {
-            astronaut.translateLocal(Vector3f(0f,-0.2f *dt,0f))
-            camera.translateLocal(Vector3f(0f,0.2f* dt,0f))
-        }
-        */
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
