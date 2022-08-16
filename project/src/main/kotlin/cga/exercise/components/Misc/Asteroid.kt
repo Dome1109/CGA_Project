@@ -28,9 +28,9 @@ class Asteroid (val player: Renderable, val collision: Collision, val asteroid :
         val playerPos = player.getWorldPosition()
         val pos = Vector3f(playerPos)
         val toPlayerFirst = pos.sub(asteroid.first.getWorldPosition())
-        val randomOffset = -kotlin.random.Random.nextInt(20,40).toFloat()
-
-        asteroid.first.translateGlobal(toPlayerFirst.add(0f,0f,randomOffset))
+        val randomOffsetZ = -kotlin.random.Random.nextInt(20,40).toFloat()
+        val randomOffsetX = kotlin.random.Random.nextInt(0,40).toFloat()
+        asteroid.first.translateGlobal(toPlayerFirst.add(randomOffsetX,0f,randomOffsetZ))
 
 
         velocity = kotlin.random.Random.nextDouble(2.0,8.0).toFloat()

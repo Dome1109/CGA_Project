@@ -163,7 +163,9 @@ class Scene(private val window: GameWindow) {
         asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,0f,0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, 0f,0f)?: throw Exception("Renderable can't be NULL!"))
-
+        asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f, toRadians(55f),0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,toRadians(45f),0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(75f),0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/screw/screw.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
 
@@ -205,7 +207,9 @@ class Scene(private val window: GameWindow) {
         asteroids[0].scaleLocal(Vector3f(0.6f))
         asteroids[1].scaleLocal(Vector3f(0.3f))
         asteroids[2].scaleLocal(Vector3f(0.1f))
-
+        asteroids[3].scaleLocal(Vector3f(0.6f))
+        asteroids[4].scaleLocal(Vector3f(0.3f))
+        asteroids[5].scaleLocal(Vector3f(0.1f))
         asteroids[0].translateLocal(Vector3f(5f,2f,-40f))
         asteroids[1].translateLocal(Vector3f(-5f,3f,-60f))
         asteroids[2].translateLocal(Vector3f(15f,10f,-90f))
