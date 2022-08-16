@@ -46,6 +46,19 @@ class Collision (val char: Renderable) {
         return false
     }
 
+    fun checkCollisionItem (list: List<Renderable>) : Renderable? {
+        val charX = char.getWorldPosition().x
+        val charZ = char.getWorldPosition().z
+        for (gameObject in list) {
+            val objX = gameObject.getWorldPosition().x
+            val objZ = gameObject.getWorldPosition().z
+            val collisionX = charX + 0.6f >= objX && objX + 0.6f >= charX
+            val collisionZ = charZ + 0.6f >= objZ && objZ + 0.6f >= charZ
+            if (collisionX && collisionZ) return gameObject
+        }
+        return null
+    }
+
     @JvmName("checkCollision1")
     fun checkCollision (list: List<Pair<Renderable, Vector2f>>) : Boolean{
         for (gameObject in list) if (checkCollision(gameObject)) return true

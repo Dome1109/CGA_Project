@@ -101,6 +101,7 @@ class Scene(private val window: GameWindow) {
     val listOfAsteroids = arrayListOf<Asteroid>()
 
     var bigFlameRender : Boolean = false
+    var itemCollected = arrayListOf<Boolean>(true, true)
 
     //scene setup
     init {
@@ -299,8 +300,8 @@ class Scene(private val window: GameWindow) {
             i.render(currentShader)
         }
 
-        for (i in items){
-            i.render(currentShader)
+        for (i in 0..items.size-1){
+            if (itemCollected[i]) items[i].render(currentShader)
         }
 
         currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
@@ -454,26 +455,20 @@ class Scene(private val window: GameWindow) {
         //println(timerCollision)
 
         // Shader-Wechsel bei Aufsammeln eines Items
-        if (collisionAstronaut.checkCollision(items)){
-            println("Kollision mit Item")
 
-            if (currentShader == tronShader && timerCollision <= 0){
-                currentShader = monoChromeRed
-                currentSkyboxShader = skyBoxShaderMono
-                timerCollision = 50f
-            }
-            else if (currentShader == monoChromeRed && timerCollision <= 0){
-                currentShader = toonShader
-                currentSkyboxShader = skyBoxShaderToon
-                timerCollision = 50f
-            }
-            else if (currentShader == toonShader && timerCollision <= 0){
-                currentShader = tronShader
-                currentSkyboxShader = skyBoxShader
-                timerCollision = 50f
-            }
+        if (collisionAstronaut.checkCollisionItem(items) == items[0]) {
+            println("Kollision mit Item 0")
+            currentShader = monoChromeRed
+            currentSkyboxShader = skyBoxShaderMono
+            itemCollected[0] = false
         }
 
+        if (collisionAstronaut.checkCollisionItem(items) == items[1]) {
+            println("Kollision mit Item 0")
+            currentShader = toonShader
+            currentSkyboxShader = skyBoxShaderToon
+            itemCollected[1] = false
+        }
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
