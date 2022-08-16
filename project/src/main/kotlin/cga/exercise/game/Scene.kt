@@ -8,7 +8,6 @@ import cga.exercise.components.Misc.MusicPlayer
 import cga.exercise.components.camera.ICamera
 import cga.exercise.components.camera.OrthoCamera
 import cga.exercise.components.camera.TronCamera
-import cga.exercise.components.geometry.Mesh
 import cga.exercise.components.geometry.Renderable
 import cga.exercise.components.light.DirectionalLight
 import cga.exercise.components.light.PointLight
@@ -18,7 +17,6 @@ import cga.exercise.components.texture.Skybox
 import cga.framework.GLError
 import cga.framework.GameWindow
 import cga.framework.ModelLoader
-import cga.framework.OBJLoader
 import org.joml.Math
 import org.joml.Math.*
 import org.joml.Vector2f
@@ -64,12 +62,13 @@ class Scene(private val window: GameWindow) {
     val items = arrayListOf<Renderable>()
     val smallFlame : Renderable
     val bigFlame : Renderable
-
+    val planets = arrayListOf<Renderable>()
 
     // Cameras
     val camera = TronCamera()
     val orthocamera = OrthoCamera()
     val firstPersonCamera = TronCamera()
+    val outroCamera = TronCamera()
     var currentCamera : ICamera
 
     // Lights
@@ -135,8 +134,11 @@ class Scene(private val window: GameWindow) {
         orthocamera.rotateLocal(toRadians(-85f), 0f, 0f)
         orthocamera.translateLocal(Vector3f(0f, 6f, 20f))
 
-        camera.rotateLocal(Math.toRadians(-35f),0f, 0f)
+        camera.rotateLocal(Math.toRadians(-35f), toRadians(0f), 0f)
         camera.translateLocal(Vector3f(0f, 0f, 4f))
+
+        outroCamera.rotateLocal(Math.toRadians(-35f), toRadians(0f), 0f)
+        outroCamera.translateLocal(Vector3f(0f, 0f, 10f))
 
         firstPersonCamera.translateLocal(Vector3f(0f,0.75f,-1f))
 
@@ -189,6 +191,13 @@ class Scene(private val window: GameWindow) {
         venus.scaleLocal(Vector3f(0.3f))
         venus.translateLocal(Vector3f(700f,-20f,500f))
 
+        planets.add(mercury)
+        planets.add(venus)
+        planets.add(earth)
+        planets.add(mars)
+        planets.add(jupiter)
+        planets.add(saturn)
+
         shuttle.scaleLocal(Vector3f(0.5f))
         shuttle.translateLocal(Vector3f(-20f,0f,-20f))
         shuttle.translateLocal(Vector3f(-10f,0f,-20f))
@@ -236,18 +245,13 @@ class Scene(private val window: GameWindow) {
 
         camera.parent = astronaut
         firstPersonCamera.parent = astronaut
-
+        outroCamera.parent = shuttle
         smallFlame.parent = astronaut
         bigFlame.parent = astronaut
         pointLight.parent = astronaut
         spotLight.parent = astronaut
-        earth.parent = astronaut
-        saturn.parent = astronaut
-        mars.parent = astronaut
-        jupiter.parent = astronaut
-        mercury.parent = astronaut
-        venus.parent = astronaut
         moon.parent = earth
+        for (cb in planets)  cb.parent = astronaut
         moon.scaleLocal(Vector3f(10f))
         moon.translateLocal(Vector3f(0f,0f,10f))
 
@@ -282,12 +286,8 @@ class Scene(private val window: GameWindow) {
 
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
 
-        earth.render(currentShader)
-        mars.render(currentShader)
-        jupiter.render(currentShader)
-        mercury.render(currentShader)
-        venus.render(currentShader)
-        saturn.render(currentShader)
+        for (cb in planets) cb.render(currentShader)
+
         moon.render(currentShader)
 
         astronaut.render(currentShader)
@@ -314,7 +314,7 @@ class Scene(private val window: GameWindow) {
     }
     fun collisionResponse (p : Pair<Renderable, Vector2f>) {
         if (collisionAstronaut.checkCollision(p)) {
-        val dirVector = astronaut.getWorldPosition().sub(p.first.getWorldPosition()).normalize(0.1f)
+        val dirVector = astronaut.getWorldPosition().sub(p.first.getWorldPosition()).normalize(0.05f)
         astronaut.translateGlobal(Vector3f(dirVector.x, 0f, dirVector.z))
         }
     }
@@ -365,7 +365,7 @@ class Scene(private val window: GameWindow) {
         if (window.getKeyState(GLFW_KEY_R)) currentCamera = orthocamera
 
         if (window.getKeyState(GLFW_KEY_V)) currentCamera = firstPersonCamera
-
+        if (window.getKeyState(GLFW_KEY_Q)) currentCamera = outroCamera
         pointLight.lightColor = Vector3f(abs(sin(t/3f)), abs(sin(t/4f)), abs(sin(t/2)))
 
         val norMovementSpeedFactor = 10
@@ -390,25 +390,17 @@ class Scene(private val window: GameWindow) {
         }
 
         fuelInUse = false
+        bigFlameRender = false
         when {
             window.getKeyState(GLFW_KEY_W) -> {
                 if (window.getKeyState(GLFW_KEY_A)) {
                     astronaut.rotateLocal(0f,1.5f * dt,0f)
-                    earth.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
-                    saturn.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
-                    mars.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
-                    jupiter.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
-                    mercury.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
-                    venus.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
+                    for(cb in planets) cb.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
+
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
                     astronaut.rotateLocal(0f, 1.5f * -dt,0f)
-                    earth.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
-                    saturn.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
-                    mars.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
-                    jupiter.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
-                    mercury.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
-                    venus.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
+                    for(cb in planets) cb.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_LEFT_SHIFT)  && !timeOut) {
                     fuelInUse = true
@@ -425,21 +417,11 @@ class Scene(private val window: GameWindow) {
 
                 if (window.getKeyState(GLFW_KEY_A)) {
                     astronaut.rotateLocal(0f,1.5f * dt,0f)
-                    earth.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
-                    saturn.rotateAroundPoint(0f, 1.5f * -dt,0f,Vector3f(0f))
-                    mars.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
-                    jupiter.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
-                    mercury.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
-                    venus.rotateAroundPoint(0f,1.5f * -dt,0f, Vector3f(0f))
+                    for(cb in planets) cb.rotateAroundPoint(0f,1.5f *-dt,0f, Vector3f(0f))
                 }
                 if (window.getKeyState(GLFW_KEY_D)) {
                     astronaut.rotateLocal(0f, 1.5f * -dt,0f)
-                    earth.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
-                    saturn.rotateAroundPoint(0f, 1.5f * dt,0f,Vector3f(0f))
-                    mars.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
-                    jupiter.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
-                    mercury.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
-                    venus.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
+                    for(cb in planets) cb.rotateAroundPoint(0f,1.5f * dt,0f, Vector3f(0f))
                 }
                 astronaut.translateLocal(Vector3f(0f, 0f, revMovementSpeedFactor * dt))
             }
@@ -511,12 +493,8 @@ class Scene(private val window: GameWindow) {
                 astronaut.rotateLocal(0f, -toRadians(deltaX.toFloat() * 0.05f), 0f)
 
                 // negate parent rotation
-                saturn.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
-                earth.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
-                mars.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
-                jupiter.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
-                mercury.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
-                venus.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+                for(cb in planets) cb.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
+
             }
 
 
