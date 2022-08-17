@@ -92,7 +92,7 @@ vec3 spotLightIntensity(vec3 spotLightColour, float len, vec3 sp, vec3 spDir, ve
     float cellIntensity;
     float intensity = clamp((cosTheta - cosGamma)/(cosPhi - cosGamma), 0.0, 1.0);
 
-    return spotLightColour * cellValue(intensity,4) * cellValue(attenuate(len, attParam),5);
+    return spotLightColour * cellValue(intensity,4) * attenuate(len, attParam); //cellValue(attenuate(len, attParam),5);
 }
 
 void main() {
