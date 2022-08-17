@@ -22,6 +22,7 @@ import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL30.*
 import kotlin.math.PI
+import kotlin.random.Random
 
 
 /**
@@ -118,6 +119,11 @@ class Scene(private val window: GameWindow) {
     var repair = false
     var shuttleRepaired = false
 
+    val randomMax =  50
+    val randomMin = -50
+    var randomSpawnPoint = Vector3f()
+    val ufoMax =  20
+    val ufoMin = -20
 
     private var outro = false
 
@@ -246,13 +252,13 @@ class Scene(private val window: GameWindow) {
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(-40f, 40f, -200f))
 
-        items[0].translateLocal(Vector3f(-10f,0f,-10f))
+        //items[0].translateLocal(Vector3f(-10f,0f,-10f))
         items[0].scaleLocal(Vector3f(0.7f))
 
-        items[1].translateLocal(Vector3f(0f,0f,-10f))
+        //items[1].translateLocal(Vector3f(0f,0f,-10f))
         items[1].scaleLocal(Vector3f(0.1f))
 
-        items[2].translateLocal(Vector3f(10f,0f,-10f))
+        //items[2].translateLocal(Vector3f(10f,0f,-10f))
         items[2].scaleLocal(Vector3f(0.5f))
 
 
@@ -309,11 +315,11 @@ class Scene(private val window: GameWindow) {
         currentShader = tronShader
 
         for (a in lifehearts) {
-            a.scaleLocal(Vector3f(0.03f))
+            a.scaleLocal(Vector3f(0.01f))
         }
-        lifehearts[0].translateGlobal(Vector3f(-1f, 2f, 0f))
-        lifehearts[1].translateGlobal(Vector3f(0f, 2f, 0f))
-        lifehearts[2].translateGlobal(Vector3f(1f, 2f, 0f))
+        lifehearts[0].translateGlobal(Vector3f(-0.6f, 1.8f, 0f))
+        lifehearts[1].translateGlobal(Vector3f(0f, 1.8f, 0f))
+        lifehearts[2].translateGlobal(Vector3f(0.6f, 1.8f, 0f))
 
         for (b in lifehearts) {
             b.rotateLocal(-1.55f,0f,0f)
@@ -322,10 +328,24 @@ class Scene(private val window: GameWindow) {
             a.parent = astronaut
         }
 
+        setItemLocation()
 
     }
 
-
+    fun setItemLocation () {
+        val ufoLocation: Vector3f
+        if (items.isNotEmpty()) {
+            items[0].translateGlobal(Vector3f(Random.nextInt(randomMin, randomMax).toFloat(), 0f,Random.nextInt(randomMin, randomMax).toFloat() ))
+            ufoLocation = items[0].getWorldPosition().sub(ufo.getWorldPosition()).add(
+                Vector3f(Random.nextInt(ufoMin, ufoMax).toFloat(),0f, Random.nextInt(ufoMin, ufoMax).toFloat()))
+            ufo.translateGlobal(Vector3f(ufoLocation.x, 0f, ufoLocation.z))
+        }
+        else {
+            ufoLocation = shuttleDestroyed.getWorldPosition().sub(ufo.getWorldPosition().add(
+                Vector3f(Random.nextInt(10, 20).toFloat(),0f,Random.nextInt(10, 20).toFloat())))
+            ufo.translateGlobal(Vector3f(ufoLocation.x, 0f, ufoLocation.z))
+        }
+    }
 
     fun render(dt: Float, t: Float) {
 
@@ -559,6 +579,7 @@ class Scene(private val window: GameWindow) {
                     items.removeAt(0)
                     shaderList.removeAt(0)
                     skyboxShaderList.removeAt(0)
+                    if (!outro)setItemLocation()
                     if (shaderList.isNotEmpty()){
                         currentShader = shaderList[0]
                         currentSkyboxShader = skyboxShaderList[0]
