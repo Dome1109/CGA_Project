@@ -102,7 +102,6 @@ class Scene(private val window: GameWindow) {
     val listOfAsteroids = arrayListOf<Asteroid>()
 
     var bigFlameRender : Boolean = false
-    var itemCollected = arrayListOf<Boolean>(true, true)
 
 
     val camFPMax =  35f
@@ -204,6 +203,7 @@ class Scene(private val window: GameWindow) {
 
         items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", toRadians(45f), 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/screw/screw.obj", toRadians(45f), 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
+        items.add(ModelLoader.loadModel("assets/hammer/hammer.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         titleScreen = ModelLoader.loadModel("assets/titlescreen/untitled.obj", toRadians(0f), 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         saturn.scaleLocal(Vector3f(0.04f))
         saturn.translateGlobal(Vector3f(-150f, 20f, -100f))
@@ -239,11 +239,15 @@ class Scene(private val window: GameWindow) {
         ufo.scaleLocal(Vector3f(0.1f))
         ufo.translateLocal(Vector3f(-40f, 40f, -200f))
 
-        items[0].translateLocal(Vector3f(10f,0f,-10f))
+        items[0].translateLocal(Vector3f(-10f,0f,-10f))
         items[0].scaleLocal(Vector3f(0.7f))
 
-        items[1].translateLocal(Vector3f(-10f,0f,-10f))
+        items[1].translateLocal(Vector3f(0f,0f,-10f))
         items[1].scaleLocal(Vector3f(0.1f))
+
+        items[2].translateLocal(Vector3f(10f,0f,-10f))
+        items[2].scaleLocal(Vector3f(0.5f))
+
 
         asteroids[0].scaleLocal(Vector3f(0.6f))
         asteroids[1].scaleLocal(Vector3f(0.3f))
@@ -525,8 +529,10 @@ class Scene(private val window: GameWindow) {
                     items.removeAt(0)
                     shaderList.removeAt(0)
                     skyboxShaderList.removeAt(0)
-                    currentShader = shaderList[0]
-                    currentSkyboxShader = skyboxShaderList[0]
+                    if (shaderList.isNotEmpty()){
+                        currentShader = shaderList[0]
+                        currentSkyboxShader = skyboxShaderList[0]
+                    }
                 }
 
             }
@@ -554,6 +560,14 @@ class Scene(private val window: GameWindow) {
             currentSkyboxShader = skyBoxShaderToon
             itemCollected[1] = false
         }
+
+        if (collisionAstronaut.checkCollisionItem(items) == items[2]) {
+            println("Kollision mit Item 2")
+            currentShader = tronShader
+            currentSkyboxShader = skyBoxShader
+            itemCollected[2] = false
+        }
+
         */
 
     }
