@@ -114,6 +114,9 @@ class Scene(private val window: GameWindow) {
     var timerActive = false
 
     var gameOver = false
+    var repairTimer = 2f
+    var repair = false
+    var shuttleRepaired = false
 
 
     private var outro = false
@@ -232,6 +235,10 @@ class Scene(private val window: GameWindow) {
         planets.add(jupiter)
         planets.add(saturn)
 
+        shuttle.scaleLocal(Vector3f(0.5f))
+        shuttle.translateLocal(Vector3f(-20f,0f,-20f))
+        shuttle.translateLocal(Vector3f(-10f,0f,-20f))
+
         shuttleDestroyed.scaleLocal(Vector3f(0.5f))
         shuttleDestroyed.translateLocal(Vector3f(-20f,0f,-20f))
         shuttleDestroyed.translateLocal(Vector3f(-10f,0f,-20f))
@@ -344,24 +351,30 @@ class Scene(private val window: GameWindow) {
 
         moon.render(currentShader)
         titleScreen.render(currentShader)
-        astronaut.render(currentShader)
+
 
         currentShader.setUniform("farbe", Vector3f(1f,0f,0f))
-        shuttleDestroyed.render(currentShader)
-
+        if (shuttleRepaired) shuttle.render(currentShader)
+        else shuttleDestroyed.render(currentShader)
+        currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
         for (i in asteroids){
             i.render(currentShader)
         }
 
-        for (a in lifehearts) {
-            a.render(currentShader)
+        if (!outro) {
+            astronaut.render(currentShader)
+            currentShader.setUniform("farbe", Vector3f(1f,0f,0f))
+            for (a in lifehearts) {
+                a.render(currentShader)
+            }
+            currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
+            smallFlame.render(currentShader)
+            if (bigFlameRender) bigFlame.render(currentShader)
         }
-
         currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
         ufo.render(currentShader)
 
-        smallFlame.render(currentShader)
-        if (bigFlameRender) bigFlame.render(currentShader)
+
         //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
 
@@ -379,15 +392,31 @@ class Scene(private val window: GameWindow) {
         moon.rotateAroundPoint(0f, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateAroundPoint(0.05f * dt, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateLocal(0f,0.05f * dt,0f)
+        saturn.rotateLocal(0.01f *dt,0.2f *dt, 0f)
 
         smallFlame.translateTexture(Vector2f(15f*dt,0f))
         bigFlame.translateTexture(Vector2f(15*dt,0f))
 
         for (i in items) i.rotateLocal(0f,2f*dt,0f)
 
-        collisionResponse(Pair(shuttleDestroyed,Vector2f(4f,1.8f)))
+        collisionResponse(Pair(shuttleDestroyed,Vector2f(1.8f,4f)))
 
         if (!outro && !gameOver) for (a in listOfAsteroids) a.update(dt)
+        if (collisionAstronaut.checkCollision(Pair(shuttleDestroyed, Vector2f(2f,5f))) && items.isEmpty()) {
+            outro = true
+            repair = true
+        }
+
+        if (repair) {
+            if (repairTimer > 0) {
+                repairTimer -= dt
+                if (repairTimer > 2*dt) shuttleRepaired = true
+            }
+            else {
+                currentCamera = outroCamera
+                repair = false
+            }
+        }
 
         if (timerActive)
             if (hitCoolDownTimer > 0) hitCoolDownTimer-=dt
@@ -444,7 +473,7 @@ class Scene(private val window: GameWindow) {
         val revMovementSpeedFactor = 2
 
 
-        saturn.rotateLocal(0.01f *dt,0.2f *dt, 0f)
+
 
         //ufo Movement
         ufo.rotateLocal(0f,0.9f *dt,0f)
@@ -452,6 +481,7 @@ class Scene(private val window: GameWindow) {
         accTransValue += transFactor * dt
         ufo.translateGlobal(Vector3f(0f,transFactor *dt,0f))
         if (accTransValue >= maxDiscrepancy || accTransValue <= -maxDiscrepancy) transFactor *= -1
+
 
 
         // end timeOut when fuel regeneration hits target
@@ -462,7 +492,7 @@ class Scene(private val window: GameWindow) {
 
         fuelInUse = false
         bigFlameRender = false
-        if(!outro && !gameOver) {
+        if(!outro && !gameOver && !repair) {
             when {
                 window.getKeyState(GLFW_KEY_W) -> {
                     if (window.getKeyState(GLFW_KEY_A)) {
@@ -537,38 +567,14 @@ class Scene(private val window: GameWindow) {
 
             }
             else {
-                outro = true
+
                 currentShader = tronShader
                 currentSkyboxShader = skyBoxShader
-                currentCamera = outroCamera
+
             }
 
         }
 
-        // Shader-Wechsel bei Aufsammeln eines Items
-        /*
-        if (collisionAstronaut.checkCollisionItem(items) == items[0]) {
-            println("Kollision mit Item 0")
-            currentShader = monoChromeRed
-            currentSkyboxShader = skyBoxShaderMono
-            itemCollected[0] = false
-        }
-
-        if (collisionAstronaut.checkCollisionItem(items) == items[1]) {
-            println("Kollision mit Item 0")
-            currentShader = toonShader
-            currentSkyboxShader = skyBoxShaderToon
-            itemCollected[1] = false
-        }
-
-        if (collisionAstronaut.checkCollisionItem(items) == items[2]) {
-            println("Kollision mit Item 2")
-            currentShader = tronShader
-            currentSkyboxShader = skyBoxShader
-            itemCollected[2] = false
-        }
-
-        */
 
     }
 
