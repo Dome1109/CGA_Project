@@ -14,7 +14,7 @@ Listen Sie hier alle Teammitglieder auf.
 # Featureliste
 
 Grundlegende Idee
-Das Einsammeln von Objekten, Ausweichen von Asteroiden um zum Spaceshuttle zu gelangen 
+- Das Einsammeln von Objekten, Ausweichen von Asteroiden um zum Spaceshuttle zu gelangen 
 
 Rendering
 - Erstellen von eigenen 3D-Objekten (mittels Blender): Spieler, Asteroiden, Spaceshuttle, Items (Domenic)
