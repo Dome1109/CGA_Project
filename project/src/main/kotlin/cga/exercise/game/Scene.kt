@@ -63,7 +63,6 @@ class Scene(private val window: GameWindow) {
     val items = mutableListOf<Renderable>()
     val smallFlame : Renderable
     val bigFlame : Renderable
-    val shuttleFlame : Renderable
     val planets = arrayListOf<Renderable>()
     val titleScreen: Renderable
 
@@ -98,7 +97,7 @@ class Scene(private val window: GameWindow) {
 
     var accTransValue = 0f
     var transFactor = 0.1f
-    val ufoBoudingBox : Pair<Renderable, Vector2f>
+
 
     val collisionAstronaut : Collision
     val listOfAsteroids = arrayListOf<Asteroid>()
@@ -119,12 +118,16 @@ class Scene(private val window: GameWindow) {
     var repairTimer = 2f
     var repair = false
     var shuttleRepaired = false
+    var flyBackHome = false
+    var startEngineTimer = 1f
+    var flyBackHomeTimer = 1f
+    var gameEndTimer = 4f
 
     val randomMax =  50
-    val randomMin = -50
+    val randomMin = -30
     var randomSpawnPoint = Vector3f()
-    val ufoMax =  20
-    val ufoMin = -20
+    val ufoMax =  10
+    val ufoMin = -10
 
     private var outro = false
 
@@ -187,7 +190,6 @@ class Scene(private val window: GameWindow) {
 
         smallFlame = ModelLoader.loadModel("assets/flames/small_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         bigFlame = ModelLoader.loadModel("assets/flames/big_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
-        shuttleFlame = ModelLoader.loadModel("assets/flames/shuttle_flames.obj", 0f, toRadians(-90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         mars = ModelLoader.loadModel("assets/mars/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
@@ -211,6 +213,9 @@ class Scene(private val window: GameWindow) {
         asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f, toRadians(30f),0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,toRadians(10f),0f)?: throw Exception("Renderable can't be NULL!"))
         asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(120f),0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid1/asteroid1.obj",0f, toRadians(70f),0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid2/asteroid2.obj",0f,toRadians(8f),0f)?: throw Exception("Renderable can't be NULL!"))
+        asteroids.add(ModelLoader.loadModel("assets/asteroid3/asteroid3.obj",0f, toRadians(90f),0f)?: throw Exception("Renderable can't be NULL!"))
 
         items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", toRadians(45f), 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/screw/screw.obj", toRadians(45f), 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
@@ -222,7 +227,7 @@ class Scene(private val window: GameWindow) {
         astronaut.scaleLocal(Vector3f(0.4f))
 
         earth.scaleLocal(Vector3f(0.3f))
-        earth.translateLocal(Vector3f(0f,0f,-300f))
+        earth.translateLocal(Vector3f(0f,0f,-500f))
 
         mars.scaleLocal(Vector3f(0.05f))
         mars.translateLocal(Vector3f(-1000f,-200f,-2000f))
@@ -273,6 +278,9 @@ class Scene(private val window: GameWindow) {
         asteroids[6].scaleLocal(Vector3f(0.6f))
         asteroids[7].scaleLocal(Vector3f(0.3f))
         asteroids[8].scaleLocal(Vector3f(0.1f))
+        asteroids[9].scaleLocal(Vector3f(0.6f))
+        asteroids[10].scaleLocal(Vector3f(0.3f))
+        asteroids[11].scaleLocal(Vector3f(0.1f))
 
         asteroids[0].translateLocal(Vector3f(5f,2f,-40f))
         asteroids[1].translateLocal(Vector3f(-5f,3f,-60f))
@@ -300,10 +308,9 @@ class Scene(private val window: GameWindow) {
 
         camera.parent = astronaut
         firstPersonCamera.parent = astronaut
-        outroCamera.parent = shuttle
+        outroCamera.parent = shuttleDestroyed
         smallFlame.parent = astronaut
         bigFlame.parent = astronaut
-        shuttleFlame.parent = shuttle
 
         spotLight.parent = astronaut
         moon.parent = earth
@@ -311,9 +318,9 @@ class Scene(private val window: GameWindow) {
         moon.scaleLocal(Vector3f(10f))
         moon.translateLocal(Vector3f(0f,0f,10f))
 
-        ufoBoudingBox = Pair(ufo, Vector2f(3f,3f))
+
         pointLight.parent = items[1]
-        pointLight2.parent = items[0]
+        pointLight2.parent = items[2]
         currentCamera = camera
         currentShader = tronShader
 
@@ -378,9 +385,8 @@ class Scene(private val window: GameWindow) {
 
         currentShader.setUniform("farbe", Vector3f(1f,0f,0f))
         if (shuttleRepaired) {
-            currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
+            currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
             shuttle.render(currentShader)
-            shuttleFlame.render(currentShader)
         }
         else shuttleDestroyed.render(currentShader)
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
@@ -408,7 +414,7 @@ class Scene(private val window: GameWindow) {
     }
     fun collisionResponse (p : Pair<Renderable, Vector2f>) {
         if (collisionAstronaut.checkCollision(p)) {
-            val dirVector = astronaut.getWorldPosition().sub(p.first.getWorldPosition()).normalize(0.05f)
+            val dirVector = astronaut.getWorldPosition().sub(p.first.getWorldPosition()).normalize(0.09f)
             astronaut.translateGlobal(Vector3f(dirVector.x, 0f, dirVector.z))
         }
     }
@@ -427,8 +433,10 @@ class Scene(private val window: GameWindow) {
         for (i in items) i.rotateLocal(0f,2f*dt,0f)
 
         collisionResponse(Pair(shuttleDestroyed,Vector2f(1.8f,4f)))
+        collisionResponse(Pair(ufo,Vector2f(1.5f,1.5f)))
 
-        if (!outro && !gameOver) for (a in listOfAsteroids) a.update(dt)
+        //if (!outro && !gameOver) for (a in listOfAsteroids) a.update(dt)
+
         if (collisionAstronaut.checkCollision(Pair(shuttleDestroyed, Vector2f(2f,5f))) && items.isEmpty()) {
             outro = true
             repair = true
@@ -440,9 +448,42 @@ class Scene(private val window: GameWindow) {
                 if (repairTimer > 2*dt) shuttleRepaired = true
             }
             else {
+                flyBackHome = true
                 currentCamera = outroCamera
                 repair = false
             }
+        }
+
+        if (flyBackHome){
+            if (startEngineTimer > 0) {
+                startEngineTimer-= 2*dt
+                println(startEngineTimer)
+            }
+            else {
+                if (flyBackHomeTimer <= 0) {
+                    val dif = 1- dt
+                    if (dif <= 0) {
+                        shuttle.scaleLocal(Vector3f(0.000001f))
+                        //outroCamera.scaleLocal(Vector3f(1f / 0.000001f))
+                    }
+                    else if(gameEndTimer >= 0) {
+                        shuttle.scaleLocal(Vector3f(dif))
+                        shuttle.translateLocal(Vector3f(0f,4.7f*dt,0f))
+                        shuttle.translateGlobal(Vector3f(0f,0f,-3*dt))
+                        outroCamera.translateGlobal(Vector3f(0f,0f,-3*dt))
+                        gameEndTimer-= dt
+                        //outroCamera.scaleLocal(Vector3f(1/dif))
+                    }
+                }
+                else {
+                    flyBackHomeTimer -= dt
+                    shuttle.translateLocal(Vector3f(0f, 0f, -30 * dt))
+
+                    //shuttle.scaleLocal(Vector3f(0.8f *dt))
+                    outroCamera.translateGlobal(Vector3f(0f, 0f, -20 * dt))
+                }
+            }
+
         }
 
         if (timerActive)
@@ -460,11 +501,8 @@ class Scene(private val window: GameWindow) {
         }
         else gameOver = true
 
-        if (collisionAstronaut.checkCollision(ufoBoudingBox)) {
-            val dirVector = astronaut.getWorldPosition().sub(ufo.getWorldPosition()).normalize(0.1f)
-            astronaut.translateGlobal(Vector3f(dirVector.x, 0f, dirVector.z))
-        }
-        if (window.getKeyState(GLFW_KEY_L)) ufo.rotateLocal(1.5f * dt,0f,0f)
+
+
 
         if (window.getKeyState(GLFW_KEY_1)) {
             currentShader = monoChromeRed
@@ -586,7 +624,7 @@ class Scene(private val window: GameWindow) {
                     items.removeAt(0)
                     shaderList.removeAt(0)
                     skyboxShaderList.removeAt(0)
-                    if (!outro)setItemLocation()
+                    setItemLocation()
                     if (shaderList.isNotEmpty()){
                         currentShader = shaderList[0]
                         currentSkyboxShader = skyboxShaderList[0]
@@ -601,14 +639,6 @@ class Scene(private val window: GameWindow) {
 
             }
 
-        }
-        // Outro Sequenz
-        if (outro){
-            shuttle.scaleLocal(Vector3f(0.9995f))
-            shuttle.translateLocal(earth.getWorldPosition().sub(shuttle.getWorldPosition()).normalize().mul(Vector3f(4*dt)))
-            outroCamera.translateLocal(shuttle.getWorldPosition().sub(earth.getWorldPosition()).normalize().mul(Vector3f(4*dt)))
-            //für bisschen mehr Bewegung
-            //outroCamera.rotateAroundPoint(0f, toRadians(5f*dt),0f, shuttle.getWorldPosition())
         }
 
 
@@ -660,7 +690,7 @@ class Scene(private val window: GameWindow) {
                     }
                 }
 
-           }
+            }
 
         }
 
