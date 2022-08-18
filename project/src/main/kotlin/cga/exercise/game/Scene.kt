@@ -95,10 +95,6 @@ class Scene(private val window: GameWindow) {
     val jetFuelTimeOutBufferQuot = 4
     var fuelAmount = maxFuelAmount
 
-    var timerCollision = 50f
-
-    var blinn = false
-
     var accTransValue = 0f
     var transFactor = 0.1f
 
@@ -388,8 +384,7 @@ class Scene(private val window: GameWindow) {
 
         currentShader.use()
 
-        if (blinn) currentShader.setUniform("blinn", 1)
-        else currentShader.setUniform("blinn", 0)
+        currentShader.setUniform("blinn", 1)
 
         currentCamera.bind(currentShader)
 
@@ -445,6 +440,7 @@ class Scene(private val window: GameWindow) {
 
 
     }
+
     fun collisionResponse (p : Pair<Renderable, Vector2f>) {
         if (collisionAstronaut.checkCollision(p)) {
             val dirVector = astronaut.getWorldPosition().sub(p.first.getWorldPosition()).normalize(0.09f)
@@ -546,13 +542,15 @@ class Scene(private val window: GameWindow) {
             pointLight3.lightColor = Vector3f(0f,0f,0f)
         }
         if (!outro && !gameOver && !isStartscreen) {
+
             if (window.getKeyState(GLFW_KEY_1)) {
-                currentShader = monoChromeRed
-                currentSkyboxShader = skyBoxShaderMono
-            }
-            if (window.getKeyState(GLFW_KEY_2)) {
                 currentShader = tronShader
                 currentSkyboxShader = skyBoxShader
+            }
+
+            if (window.getKeyState(GLFW_KEY_2)) {
+                currentShader = monoChromeRed
+                currentSkyboxShader = skyBoxShaderMono
             }
 
             if (window.getKeyState(GLFW_KEY_3)) {
@@ -560,28 +558,13 @@ class Scene(private val window: GameWindow) {
                 currentSkyboxShader = skyBoxShaderToon
             }
 
-            if (window.getKeyState(GLFW_KEY_B)) {
-                blinn = true
-            }
-            if (window.getKeyState(GLFW_KEY_N)) {
-                blinn = false
-            }
-
             if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
 
             if (window.getKeyState(GLFW_KEY_R)) currentCamera = orthocamera
 
             if (window.getKeyState(GLFW_KEY_V)) currentCamera = firstPersonCamera
-            if (window.getKeyState(GLFW_KEY_Q)) currentCamera = outroCamera
+
         }
-        //pointLight.lightColor = Vector3f(abs(sin(t/3f)), abs(sin(t/4f)), abs(sin(t/2)))
-
-        val norMovementSpeedFactor = 10
-        val accMovementSpeedFactor = 20
-        val revMovementSpeedFactor = 2
-
-
-
 
         //ufo Movement
         ufo.rotateLocal(0f,0.9f *dt,0f)
@@ -597,6 +580,10 @@ class Scene(private val window: GameWindow) {
             timeOut = false
             println("Jet Fuel Capacity at ${100/jetFuelTimeOutBufferQuot} %")
         }
+
+        val norMovementSpeedFactor = 10
+        val accMovementSpeedFactor = 20
+        val revMovementSpeedFactor = 2
 
         fuelInUse = false
         bigFlameRender = false
@@ -656,12 +643,7 @@ class Scene(private val window: GameWindow) {
 
         }
 
-        if (collisionAstronaut.checkCollision(asteroids)){
-            println("Kollision mit Asteroid")
-        }
 
-
-        //println(timerCollision)
         if (!outro) {
             if (items.isNotEmpty()) {
                 if (collisionAstronaut.checkCollision(Pair(items[0], Vector2f(0.6f)))) {

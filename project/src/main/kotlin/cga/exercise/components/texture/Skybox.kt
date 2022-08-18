@@ -123,8 +123,6 @@ class Skybox {
 
     fun render(skyBoxShader : ShaderProgram, view : Matrix4f, projection: Matrix4f){
 
-        //GL13.glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS)
-
         glDepthFunc(GL_LEQUAL)
 
         skyBoxShader.use()
@@ -139,7 +137,7 @@ class Skybox {
         GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0)
 
         GL30.glBindVertexArray(0)
+        glDepthFunc(GL_LESS)
 
-        //GL11.glDepthMask(true)
     }
 }
