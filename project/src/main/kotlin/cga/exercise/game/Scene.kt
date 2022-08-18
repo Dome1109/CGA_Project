@@ -63,6 +63,7 @@ class Scene(private val window: GameWindow) {
     val items = mutableListOf<Renderable>()
     val smallFlame : Renderable
     val bigFlame : Renderable
+    val shuttleFlame : Renderable
     val planets = arrayListOf<Renderable>()
     val titleScreen: Renderable
 
@@ -190,6 +191,7 @@ class Scene(private val window: GameWindow) {
 
         smallFlame = ModelLoader.loadModel("assets/flames/small_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         bigFlame = ModelLoader.loadModel("assets/flames/big_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        shuttleFlame = ModelLoader.loadModel("assets/flames/shuttle_flames.obj", 0f, toRadians(-90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         mars = ModelLoader.loadModel("assets/mars/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
@@ -311,6 +313,7 @@ class Scene(private val window: GameWindow) {
         outroCamera.parent = shuttleDestroyed
         smallFlame.parent = astronaut
         bigFlame.parent = astronaut
+        shuttleFlame.parent = shuttle
 
         spotLight.parent = astronaut
         moon.parent = earth
@@ -385,8 +388,9 @@ class Scene(private val window: GameWindow) {
 
         currentShader.setUniform("farbe", Vector3f(1f,0f,0f))
         if (shuttleRepaired) {
-            currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
+            currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
             shuttle.render(currentShader)
+            shuttleFlame.render(currentShader)
         }
         else shuttleDestroyed.render(currentShader)
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
@@ -435,7 +439,7 @@ class Scene(private val window: GameWindow) {
         collisionResponse(Pair(shuttleDestroyed,Vector2f(1.8f,4f)))
         collisionResponse(Pair(ufo,Vector2f(1.5f,1.5f)))
 
-        //if (!outro && !gameOver) for (a in listOfAsteroids) a.update(dt)
+        if (!outro && !gameOver) for (a in listOfAsteroids) a.update(dt)
 
         if (collisionAstronaut.checkCollision(Pair(shuttleDestroyed, Vector2f(2f,5f))) && items.isEmpty()) {
             outro = true
