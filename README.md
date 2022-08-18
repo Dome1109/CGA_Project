@@ -1,10 +1,11 @@
 # Projektname
+
 Long Way Home <3
 
 
 
 # Teammitglieder
-Listen Sie hier alle Teammitglieder auf.
+
 - Domenic Schäfer
 - Ylli Loshaj
 - Lara Engeln
@@ -50,6 +51,7 @@ Weitergehende Konzepte
 
 
 # Quellenverzeichnis
+
 - Erde Textur: 
 http://www.shadedrelief.com/natural3/pages/textures.html
 - Andere Planeten Texturen (außer Saturn):
@@ -59,6 +61,6 @@ https://free3d.com/3d-models/heart
 - Mond:
 https://free3d.com/3d-model/moon-photorealistic-2k-853071.html#
 - Saturn V1:
-Link: https://free3d.com/3d-model/saturn-v1--741827.html
+https://free3d.com/3d-model/saturn-v1--741827.html
 - UFO:
 https://www.turbosquid.com/3d-models/free-3ds-model-flying-saucer/1081073
