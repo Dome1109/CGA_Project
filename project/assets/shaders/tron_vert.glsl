@@ -12,6 +12,7 @@ uniform vec2 tcMultiplier;
 uniform vec3 pointLightPos;
 uniform vec3 pointLight2Pos;
 uniform vec3 pointLight3Pos;
+uniform vec3 pointLight4Pos;
 uniform vec3 spotLightPos;
 uniform mat3 textureTransform;
 
@@ -21,6 +22,7 @@ out struct VertexData
     vec3 toPointLight;
     vec3 toPointLight2;
     vec3 toPointLight3;
+    vec3 toPointLight4;
     vec3 toSpotLight;
     vec2 tc;
     vec3 normale;
@@ -44,9 +46,11 @@ void main(){
     vec4 lp = view * vec4(pointLightPos, 1.0);
     vec4 lp2 = view * vec4(pointLight2Pos, 1.0);
     vec4 lp3 = view * vec4(pointLight3Pos, 1.0);
+    vec4 lp4 = view * vec4(pointLight4Pos,1.0);
     vertexData.toPointLight = (lp - modelViewPosition).xyz;
     vertexData.toPointLight2 = (lp2 - modelViewPosition).xyz;
     vertexData.toPointLight3 = (lp3 - modelViewPosition).xyz;
+    vertexData.toPointLight4 = (lp4 - modelViewPosition).xyz;
 
     vec4 lpS = view * vec4(spotLightPos, 1.0);
     vertexData.toSpotLight = (lpS - modelViewPosition).xyz;

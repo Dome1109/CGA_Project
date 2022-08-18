@@ -81,6 +81,7 @@ class Scene(private val window: GameWindow) {
     val pointLight : PointLight
     val pointLight2 : PointLight
     val pointLight3: PointLight
+    val pointLight4: PointLight
     val spotLight: SpotLight
 
     //MouseParam
@@ -304,10 +305,10 @@ class Scene(private val window: GameWindow) {
         orthocamera.multiplier = 1.1f
         pointLight = PointLight(Vector3f(0f, 2f, 0f), Vector3f(1f, 1f, 0f),
             Vector3f(1f, 0.5f, 0.1f))
-        pointLight2 = PointLight(Vector3f(0f, 4f, 0f), Vector3f(0f, 1f, 0f),
+        pointLight2 = PointLight(Vector3f(0f, 2f, 0f), Vector3f(0f, 1f, 0f),
             Vector3f(1f, 0.5f, 0.1f))
         pointLight3 = PointLight(Vector3f(0f,0f,4f), Vector3f(1f,1f,1f),Vector3f(1f, 0.5f, 0.1f))
-
+        pointLight4 = PointLight(Vector3f(0f,2f,0f), Vector3f(0f,0f,1f),Vector3f(1f, 0.5f, 0.1f))
         spotLight = SpotLight(Vector3f(0f, 1f, -2f), Vector3f(1f,1f,0.6f),
             Vector3f(0.5f, 0.05f, 0.05f), Vector2f(toRadians(15f), toRadians(30f)))
 
@@ -393,6 +394,7 @@ class Scene(private val window: GameWindow) {
         pointLight.bind(currentShader, "pointLight")
         pointLight2.bind(currentShader, "pointLight2")
         pointLight3.bind(currentShader, "pointLight3")
+        pointLight4.bind(currentShader, "pointLight4")
 
 
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
@@ -532,6 +534,7 @@ class Scene(private val window: GameWindow) {
         }
         else {
             currentCamera = firstPersonCamera
+            currentShader = tronShader
             gameOver = true
         }
 

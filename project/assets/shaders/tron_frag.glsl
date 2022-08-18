@@ -7,6 +7,7 @@ in struct VertexData
     vec3 toPointLight;
     vec3 toPointLight2;
     vec3 toPointLight3;
+    vec3 toPointLight4;
     vec3 toSpotLight;
     vec2 tc;
     vec3 normale;
@@ -30,6 +31,8 @@ uniform vec3 pointLight2Color;
 uniform vec3 pointLight2AttParam;
 uniform vec3 pointLight3Color;
 uniform vec3 pointLight3AttParam;
+uniform vec3 pointLight4Color;
+uniform vec3 pointLight4AttParam;
 uniform vec3 spotLightColor;
 uniform vec2 spotLightAngle;
 uniform vec3 spotLightAttParam;
@@ -95,6 +98,8 @@ void main() {
     vec3 lp2 = vertexData.toPointLight2/lp2Length;
     float lp3Length = length(vertexData.toPointLight3);
     vec3 lp3 = vertexData.toPointLight3/lp3Length;
+    float lp4Length = length(vertexData.toPointLight4);
+    vec3 lp4 = vertexData.toPointLight4/lp4Length;
     float spLength = length(vertexData.toSpotLight);
     vec3 sp = vertexData.toSpotLight/spLength;
     vec3 diffCol = texGammaCorrection(texture(diff, vertexData.tc).xyz);
@@ -113,14 +118,20 @@ void main() {
     result += shade(n, lp3, v, diffCol, specularCol, shininess) *
     pointLightIntensity(pointLight3Color, lp3Length, pointLight3AttParam);
 
+    //Pointlight4
+    result += shade(n, lp4, v, diffCol, specularCol, shininess) *
+    pointLightIntensity(pointLight4Color, lp4Length, pointLight4AttParam);
+
     //Pointlight2
     /*
     result += shade(n, lp2, v, diffCol, specularCol, shininess) *
     pointLightIntensity(pointLight2Color, lp2Length, pointLight2AttParam);
-    */
+
     //Pointlight
     result += shade(n, lp, v, diffCol, specularCol, shininess) *
     pointLightIntensity(pointLightColor, lpLength, pointLightAttParam);
+    */
+
 
     //Spotlight
     result += shade(n, sp, v, diffCol, specularCol, shininess) *
