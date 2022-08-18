@@ -1,29 +1,64 @@
-# CGAProject
-Dies ist das Template-Projekt für die Abschlussprojekte im Modul "Computergrafik und Animation" an der TH Köln.
-
-Bitte nutzen Sie dieses Template-Repository ("Use this template") und entwickeln Sie Ihr Abschlussprojekt mit dieser Vorlage. Denken Sie daran *fabianfriederichs*, *jm-th-koeln* und *oberberg* (Prof. Horst Stenzel) als Collaborators hinzuzufügen, damit wir darauf zugreifen können.
-
-Löschen Sie als erstes den Abschnitt CGAProjekt in dieser Datei und füllen Sie den Rest entsprechend aus für die Abgabe.
-
 # Projektname
-Fügen Sie ihren Projektnamen hinzu
+Long Way Home <3
+
+
 
 # Teammitglieder
 Listen Sie hier alle Teammitglieder auf.
-- Armin Anfang
-- Berta Beliebig
-- Carola Coautor
+- Domenic Schäfer
+- Ylli Loshaj
+- Lara Engeln
+
+
 
 # Featureliste
-Listen Sie hier alle relevanten Features als Liste mit sinnvoller Reihenfolge auf mit Angabe wer das Feature implementiert hat.
-Bei starker Ungleicheit der Features behalten wir uns eine individuelle Notenvergabe vor.
 
-Bspw.
+Grundlegende Idee
+Das Einsammeln von Objekten, Ausweichen von Asteroiden um zum Spaceshuttle zu gelangen 
 
-- Verschiedene Kameramodelle (Wechsel zwischen orthographischer und perspektivischer Kamera mittels "c") (Berta)
-- Dynamische Kamera (Steuerung mittels Maus und "WASD" auf der Tastatur) (Carola und Armin)
-- Verschiedene Shaderprogramme (Wechsel mittels "s") (Carola)
-- ...
+Rendering
+- Erstellen von eigenen 3D-Objekten (mittels Blender): Spieler, Asteroiden, Spaceshuttle, Items (Domenic)
+- Erstellen einer sinnvollen Spielszene (Domenic, Lara)
+- Einbindung externer Modelle (siehe Quelle) (Domenic, Ylli, Lara)
+
+Shaderprogrammierung
+- Shaderwechsel: Manuell (mit Keytasten) und automatisch (beim Aufsammeln von bestimmten Objekten) (Ylli)
+- Implementierung Toon Shader, Monochrome Shader, Skybox Shader (Ylli, Domenic)
+
+Transformationen
+- zufällige Generierung der Asteroiden: (Ylli)
+-> unterschiedl. Tempo einzelner Asteroiden (Lara)
+-> Asteroiden bewegen sich Richtung Spieler (Ylli)
+
+Kamera
+- Implementierung und Wechsel: orthografische Kamera, First-Person-Kamera (Ylli)
+- Implementierung: Zoom Kamera mit Mausrad (Domenic)
+
+Texturen
+- Implementierung Skybox (Ylli)
+- Texturmatrix: Feuerdüsen am Jetpack und Spaceshuttle (Ylli, Domenic)
+
+Weitergehende Konzepte
+- Lebensanzeige über Spieler (drei Herzen): Bei Kollision verschwindet ein Herz und jeweiliger Asteroid (Lara)
+- Directional Light (Ylli)
+- Jetpack (Ylli)
+- Physics: Bei Kollision mit Asteroid wird Player 'zurück geworfen' (Ylli)
+- Kollision(-sbox) für Spaceshuttle und Ufo (Lara)
+- Start-, End- und Game Over Screen (Lara)
+- eigene Musikkreation (Ylli)
+
+
 
 # Quellenverzeichnis
-Listen Sie hier ALLE Quellen der genutzten Ressourcen auf.
+- Erde Textur: 
+http://www.shadedrelief.com/natural3/pages/textures.html
+- Andere Planeten Texturen (außer Saturn):
+https://www.solarsystemscope.com/textures/
+- Lebensanzeige (Herzen):
+https://free3d.com/3d-models/heart
+- Mond:
+https://free3d.com/3d-model/moon-photorealistic-2k-853071.html#
+- Saturn V1:
+Link: https://free3d.com/3d-model/saturn-v1--741827.html
+- UFO:
+https://www.turbosquid.com/3d-models/free-3ds-model-flying-saucer/1081073
