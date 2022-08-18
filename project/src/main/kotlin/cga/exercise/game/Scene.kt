@@ -65,7 +65,7 @@ class Scene(private val window: GameWindow) {
     val bigFlame : Renderable
     val shuttleFlame : Renderable
     val planets = arrayListOf<Renderable>()
-    val titleScreen: Renderable
+    val startScreen: Renderable
 
     // Cameras
     val camera = TronCamera()
@@ -131,6 +131,9 @@ class Scene(private val window: GameWindow) {
     val ufoMin = -10
 
     private var outro = false
+
+    //start- and endscreen
+    var isStartscreen = true
 
     //scene setup
     init {
@@ -222,7 +225,7 @@ class Scene(private val window: GameWindow) {
         items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", toRadians(45f), 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/screw/screw.obj", toRadians(45f), 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/hammer/hammer.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
-        titleScreen = ModelLoader.loadModel("assets/titlescreen/untitled.obj", toRadians(0f), 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        startScreen = ModelLoader.loadModel("assets/startscreen/startscreen.obj", toRadians(0f), 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         saturn.scaleLocal(Vector3f(0.04f))
         saturn.translateGlobal(Vector3f(-150f, 20f, -100f))
         //saturn.rotateLocal(toRadians(90f),0f,0f)
@@ -378,12 +381,13 @@ class Scene(private val window: GameWindow) {
         pointLight.bind(currentShader, "pointLight")
         pointLight2.bind(currentShader, "pointLight2")
 
+
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
         if (!outro && items.isNotEmpty()) items[0].render(currentShader)
         for (cb in planets) cb.render(currentShader)
 
         moon.render(currentShader)
-        titleScreen.render(currentShader)
+        if (isStartscreen) startScreen.render(currentShader)
 
 
         currentShader.setUniform("farbe", Vector3f(1f,0f,0f))
@@ -439,7 +443,7 @@ class Scene(private val window: GameWindow) {
         collisionResponse(Pair(shuttleDestroyed,Vector2f(1.8f,4f)))
         collisionResponse(Pair(ufo,Vector2f(1.5f,1.5f)))
 
-        if (!outro && !gameOver) for (a in listOfAsteroids) a.update(dt)
+        if (!outro && !gameOver && !isStartscreen) for (a in listOfAsteroids) a.update(dt)
 
         if (collisionAstronaut.checkCollision(Pair(shuttleDestroyed, Vector2f(2f,5f))) && items.isEmpty()) {
             outro = true
@@ -506,35 +510,38 @@ class Scene(private val window: GameWindow) {
         else gameOver = true
 
 
-
-
-        if (window.getKeyState(GLFW_KEY_1)) {
-            currentShader = monoChromeRed
-            currentSkyboxShader = skyBoxShaderMono
+        if (window.getKeyState(GLFW_KEY_ENTER)) {
+            isStartscreen = false
         }
-        if (window.getKeyState(GLFW_KEY_2)) {
-            currentShader = tronShader
-            currentSkyboxShader = skyBoxShader
+        if (!outro && !gameOver && !isStartscreen) {
+            if (window.getKeyState(GLFW_KEY_1)) {
+                currentShader = monoChromeRed
+                currentSkyboxShader = skyBoxShaderMono
+            }
+            if (window.getKeyState(GLFW_KEY_2)) {
+                currentShader = tronShader
+                currentSkyboxShader = skyBoxShader
+            }
+
+            if (window.getKeyState(GLFW_KEY_3)) {
+                currentShader = toonShader
+                currentSkyboxShader = skyBoxShaderToon
+            }
+
+            if (window.getKeyState(GLFW_KEY_B)) {
+                blinn = true
+            }
+            if (window.getKeyState(GLFW_KEY_N)) {
+                blinn = false
+            }
+
+            if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
+
+            if (window.getKeyState(GLFW_KEY_R)) currentCamera = orthocamera
+
+            if (window.getKeyState(GLFW_KEY_V)) currentCamera = firstPersonCamera
+            if (window.getKeyState(GLFW_KEY_Q)) currentCamera = outroCamera
         }
-
-        if (window.getKeyState(GLFW_KEY_3)){
-            currentShader = toonShader
-            currentSkyboxShader = skyBoxShaderToon
-        }
-
-        if (window.getKeyState(GLFW_KEY_B)){
-            blinn = true
-        }
-        if (window.getKeyState(GLFW_KEY_N)){
-            blinn = false
-        }
-
-        if (window.getKeyState(GLFW_KEY_F)) currentCamera = camera
-
-        if (window.getKeyState(GLFW_KEY_R)) currentCamera = orthocamera
-
-        if (window.getKeyState(GLFW_KEY_V)) currentCamera = firstPersonCamera
-        if (window.getKeyState(GLFW_KEY_Q)) currentCamera = outroCamera
         //pointLight.lightColor = Vector3f(abs(sin(t/3f)), abs(sin(t/4f)), abs(sin(t/2)))
 
         val norMovementSpeedFactor = 10
@@ -561,7 +568,7 @@ class Scene(private val window: GameWindow) {
 
         fuelInUse = false
         bigFlameRender = false
-        if(!outro && !gameOver && !repair) {
+        if(!outro && !gameOver && !isStartscreen) {
             when {
                 window.getKeyState(GLFW_KEY_W) -> {
                     if (window.getKeyState(GLFW_KEY_A)) {
@@ -659,7 +666,7 @@ class Scene(private val window: GameWindow) {
         oldMousePosX = xpos
         oldMousePosY = ypos
 
-        if(notFirstFrame) {
+        if(notFirstFrame && !outro && !gameOver && !isStartscreen) {
 
             if (currentCamera == camera)
                 camera.rotateAroundPoint(0f, toRadians(deltaX.toFloat() * 0.05f), 0f, Vector3f(0f))
