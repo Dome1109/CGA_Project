@@ -66,6 +66,8 @@ class Scene(private val window: GameWindow) {
     val shuttleFlame : Renderable
     val planets = arrayListOf<Renderable>()
     val startScreen: Renderable
+    val gameOverScreen: Renderable
+    val endScreen: Renderable
 
     // Cameras
     val camera = TronCamera()
@@ -76,8 +78,9 @@ class Scene(private val window: GameWindow) {
 
     // Lights
     val dirLight : DirectionalLight
-    val pointLight2 : PointLight
     val pointLight : PointLight
+    val pointLight2 : PointLight
+    val pointLight3: PointLight
     val spotLight: SpotLight
 
     //MouseParam
@@ -123,6 +126,7 @@ class Scene(private val window: GameWindow) {
     var startEngineTimer = 1f
     var flyBackHomeTimer = 1f
     var gameEndTimer = 4f
+    var gameEnd = false
 
     val randomMax =  50
     val randomMin = -30
@@ -225,7 +229,9 @@ class Scene(private val window: GameWindow) {
         items.add(ModelLoader.loadModel("assets/wrench/wrench.obj", toRadians(45f), 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/screw/screw.obj", toRadians(45f), 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
         items.add(ModelLoader.loadModel("assets/hammer/hammer.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!"))
-        startScreen = ModelLoader.loadModel("assets/startscreen/startscreen.obj", toRadians(0f), 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        startScreen = ModelLoader.loadModel("assets/startscreen/startscreen.obj", toRadians(0f), toRadians(-90f), 0f)?: throw Exception("Renderable can't be NULL!")
+        gameOverScreen = ModelLoader.loadModel("assets/gameover/gameover.obj", toRadians(0f), toRadians(-90f), 0f)?: throw Exception("Renderable can't be NULL!")
+        endScreen = ModelLoader.loadModel("assets/endscreen/endscreen.obj", toRadians(0f), toRadians(-90f), 0f)?: throw Exception("Renderable can't be NULL!")
         saturn.scaleLocal(Vector3f(0.04f))
         saturn.translateGlobal(Vector3f(-150f, 20f, -100f))
         //saturn.rotateLocal(toRadians(90f),0f,0f)
@@ -304,6 +310,7 @@ class Scene(private val window: GameWindow) {
             Vector3f(1f, 0.5f, 0.1f))
         pointLight2 = PointLight(Vector3f(0f, 4f, 0f), Vector3f(0f, 1f, 0f),
             Vector3f(1f, 0.5f, 0.1f))
+        pointLight3 = PointLight(Vector3f(0f,0f,4f), Vector3f(1f,1f,1f),Vector3f(1f, 0.5f, 0.1f))
 
         spotLight = SpotLight(Vector3f(0f, 1f, -2f), Vector3f(1f,1f,0.6f),
             Vector3f(0.5f, 0.05f, 0.05f), Vector2f(toRadians(15f), toRadians(30f)))
@@ -318,6 +325,7 @@ class Scene(private val window: GameWindow) {
         bigFlame.parent = astronaut
         shuttleFlame.parent = shuttle
 
+
         spotLight.parent = astronaut
         moon.parent = earth
         for (cb in planets)  cb.parent = astronaut
@@ -327,8 +335,17 @@ class Scene(private val window: GameWindow) {
 
         pointLight.parent = items[1]
         pointLight2.parent = items[2]
-        currentCamera = camera
+        pointLight3.parent = firstPersonCamera
+        currentCamera = firstPersonCamera
         currentShader = tronShader
+
+        startScreen.parent = firstPersonCamera
+        endScreen.parent = firstPersonCamera
+        gameOverScreen.parent = firstPersonCamera
+
+        startScreen.translateGlobal(Vector3f(0f,0f,-0.5f))
+        endScreen.translateGlobal(Vector3f(0f,0f,-0.5f))
+        gameOverScreen.translateGlobal(Vector3f(0f,0f,-0.5f))
 
         for (a in lifehearts) {
             a.scaleLocal(Vector3f(0.01f))
@@ -380,6 +397,7 @@ class Scene(private val window: GameWindow) {
         spotLight.bind(currentShader, "spotLight", currentCamera.getCalculateViewMatrix())
         pointLight.bind(currentShader, "pointLight")
         pointLight2.bind(currentShader, "pointLight2")
+        pointLight3.bind(currentShader, "pointLight3")
 
 
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
@@ -387,23 +405,33 @@ class Scene(private val window: GameWindow) {
         for (cb in planets) cb.render(currentShader)
 
         moon.render(currentShader)
-        if (isStartscreen) startScreen.render(currentShader)
 
+        if(flyBackHome) shuttleFlame.render(currentShader)
 
         currentShader.setUniform("farbe", Vector3f(1f,0f,0f))
         if (shuttleRepaired) {
             currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
             shuttle.render(currentShader)
-            shuttleFlame.render(currentShader)
+
         }
         else shuttleDestroyed.render(currentShader)
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
         for (i in asteroids){
             i.render(currentShader)
         }
+        if (isStartscreen) startScreen.render(currentShader)
+        if (gameOver) {
+            pointLight3.lightColor = Vector3f(1f,1f,1f)
+            gameOverScreen.render(currentShader)
+        }
+        if (gameEnd) {
+            pointLight3.lightColor = Vector3f(1f,1f,1f)
+            endScreen.render(currentShader)
+        }
 
         if (!outro) {
             astronaut.render(currentShader)
+
             currentShader.setUniform("farbe", Vector3f(1f,0f,0f))
             for (a in lifehearts) {
                 a.render(currentShader)
@@ -414,9 +442,6 @@ class Scene(private val window: GameWindow) {
         }
         currentShader.setUniform("farbe", Vector3f(1f,1f,1f))
         ufo.render(currentShader)
-
-
-        //currentShader.setUniform("farbe", Vector3f(abs(sin(t)), abs(sin(t/2f)), abs(sin(t/3f))))
 
 
     }
@@ -435,6 +460,7 @@ class Scene(private val window: GameWindow) {
         moon.rotateLocal(0f,0.05f * dt,0f)
         saturn.rotateLocal(0.01f *dt,0.2f *dt, 0f)
 
+        shuttleFlame.translateTexture(Vector2f(15f*dt,0f))
         smallFlame.translateTexture(Vector2f(15f*dt,0f))
         bigFlame.translateTexture(Vector2f(15*dt,0f))
 
@@ -472,7 +498,6 @@ class Scene(private val window: GameWindow) {
                     val dif = 1- dt
                     if (dif <= 0) {
                         shuttle.scaleLocal(Vector3f(0.000001f))
-                        //outroCamera.scaleLocal(Vector3f(1f / 0.000001f))
                     }
                     else if(gameEndTimer >= 0) {
                         shuttle.scaleLocal(Vector3f(dif))
@@ -482,12 +507,14 @@ class Scene(private val window: GameWindow) {
                         gameEndTimer-= dt
                         //outroCamera.scaleLocal(Vector3f(1/dif))
                     }
+                    else {
+                        currentCamera =firstPersonCamera
+                        gameEnd = true
+                    }
                 }
                 else {
                     flyBackHomeTimer -= dt
                     shuttle.translateLocal(Vector3f(0f, 0f, -30 * dt))
-
-                    //shuttle.scaleLocal(Vector3f(0.8f *dt))
                     outroCamera.translateGlobal(Vector3f(0f, 0f, -20 * dt))
                 }
             }
@@ -507,11 +534,16 @@ class Scene(private val window: GameWindow) {
                 timerActive = true
             }
         }
-        else gameOver = true
+        else {
+            currentCamera = firstPersonCamera
+            gameOver = true
+        }
 
 
         if (window.getKeyState(GLFW_KEY_ENTER)) {
             isStartscreen = false
+            currentCamera = camera
+            pointLight3.lightColor = Vector3f(0f,0f,0f)
         }
         if (!outro && !gameOver && !isStartscreen) {
             if (window.getKeyState(GLFW_KEY_1)) {
@@ -568,6 +600,7 @@ class Scene(private val window: GameWindow) {
 
         fuelInUse = false
         bigFlameRender = false
+
         if(!outro && !gameOver && !isStartscreen) {
             when {
                 window.getKeyState(GLFW_KEY_W) -> {
