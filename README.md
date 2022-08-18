@@ -14,7 +14,7 @@ Listen Sie hier alle Teammitglieder auf.
 # Featureliste
 
 Grundlegende Idee
-Spieler muss Werkzeuge nacheinander einsammeln und dabei Asteroiden ausweichen. Ziel ist es, das Spaceshuttle zu reparieren und nach Hause zu fliegen.
+-> Spieler muss Werkzeuge nacheinander einsammeln, mit Hilfe von dem Ufo können diese leichter gefunden werden. Dabei muss er Asteroiden ausweichen und besitzt drei Leben. Ziel ist es, das Spaceshuttle zu reparieren und nach Hause zu fliegen.
 
 Rendering
 - Erstellen von eigenen 3D-Objekten (mittels Blender): Spieler, Asteroiden, Spaceshuttle, Items (Domenic)
