@@ -63,6 +63,7 @@ class Scene(private val window: GameWindow) {
     val items = mutableListOf<Renderable>()
     val smallFlame : Renderable
     val bigFlame : Renderable
+    val shuttleFlame : Renderable
     val planets = arrayListOf<Renderable>()
     val titleScreen: Renderable
 
@@ -186,6 +187,7 @@ class Scene(private val window: GameWindow) {
 
         smallFlame = ModelLoader.loadModel("assets/flames/small_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         bigFlame = ModelLoader.loadModel("assets/flames/big_flame.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
+        shuttleFlame = ModelLoader.loadModel("assets/flames/shuttle_flames.obj", 0f, toRadians(-90f), 0f)?: throw Exception("Renderable can't be NULL!")
 
         earth = ModelLoader.loadModel("assets/earth/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
         mars = ModelLoader.loadModel("assets/mars/kugel.obj", 0f, 0f, 0f)?: throw Exception("Renderable can't be NULL!")
@@ -298,9 +300,10 @@ class Scene(private val window: GameWindow) {
 
         camera.parent = astronaut
         firstPersonCamera.parent = astronaut
-        outroCamera.parent = shuttleDestroyed
+        outroCamera.parent = shuttle
         smallFlame.parent = astronaut
         bigFlame.parent = astronaut
+        shuttleFlame.parent = shuttle
 
         spotLight.parent = astronaut
         moon.parent = earth
@@ -374,7 +377,11 @@ class Scene(private val window: GameWindow) {
 
 
         currentShader.setUniform("farbe", Vector3f(1f,0f,0f))
-        if (shuttleRepaired) shuttle.render(currentShader)
+        if (shuttleRepaired) {
+            currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
+            shuttle.render(currentShader)
+            shuttleFlame.render(currentShader)
+        }
         else shuttleDestroyed.render(currentShader)
         currentShader.setUniform("farbe", Vector3f(0f,0f,0f))
         for (i in asteroids){
@@ -594,6 +601,14 @@ class Scene(private val window: GameWindow) {
 
             }
 
+        }
+        // Outro Sequenz
+        if (outro){
+            shuttle.scaleLocal(Vector3f(0.9995f))
+            shuttle.translateLocal(earth.getWorldPosition().sub(shuttle.getWorldPosition()).normalize().mul(Vector3f(4*dt)))
+            outroCamera.translateLocal(shuttle.getWorldPosition().sub(earth.getWorldPosition()).normalize().mul(Vector3f(4*dt)))
+            //für bisschen mehr Bewegung
+            //outroCamera.rotateAroundPoint(0f, toRadians(5f*dt),0f, shuttle.getWorldPosition())
         }
 
 
