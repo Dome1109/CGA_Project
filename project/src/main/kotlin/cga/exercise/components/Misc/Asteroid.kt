@@ -11,7 +11,7 @@ class Asteroid (val player: Renderable, val collision: Collision, val asteroid :
     private val maxDistence = 60f
     private var distance = maxDistence
     private var num = 1.2f
-    var isHit = false
+    var isHit = false //accessed outside of object
     private var hitDir = Vector3f()
     private var hit = false
     init {
@@ -27,14 +27,16 @@ class Asteroid (val player: Renderable, val collision: Collision, val asteroid :
         else if (collision.checkCollision(asteroid) && !hit){
             isHit = true
             hit = true
-            hitDir = player.getWorldPosition().sub(asteroid.first.getWorldPosition()).normalize()
+            hitDir = player.getWorldPosition().sub(asteroid.first.getWorldPosition().sub(toPlayer))
+            num = hitDir.length()* 0.5f
+            println(num)
+            println(hitDir)
             reset()
         }
         else if (hit) {
             if (num > 0) {
                 val hD = Vector3f(hitDir).normalize(num)
                 player.translateGlobal(hD.mul(10 * dt))
-                println(num)
                 num -= 2*dt
                 isHit = false
             }

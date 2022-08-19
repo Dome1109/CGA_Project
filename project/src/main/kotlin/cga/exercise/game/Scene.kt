@@ -539,7 +539,7 @@ class Scene(private val window: GameWindow) {
         }
 
 
-        if (window.getKeyState(GLFW_KEY_ENTER)) {
+        if (window.getKeyState(GLFW_KEY_ENTER) && isStartscreen) {
             isStartscreen = false
             currentCamera = camera
             pointLight3.lightColor = Vector3f(0f,0f,0f)
