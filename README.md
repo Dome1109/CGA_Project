@@ -18,10 +18,10 @@ Grundlegende Idee
 - Spieler muss Werkzeuge nacheinander einsammeln, mit Hilfe von dem Ufo können diese leichter gefunden werden. Dabei muss er Asteroiden ausweichen und besitzt drei Leben. Ziel ist es, das Spaceshuttle zu reparieren und nach Hause zu fliegen.
 
 Steuerung
-Spielerbewegung: WASD, Jetpack-boost (Shift)
-Umschauen: Mausbewegung
-Kameras: Orthographisch (R), First-person (V), Third-person (F), Zoom (Mausrad)
-Shaderwechsel: Standard (1), Toon (2), Monochrom rot (3)
+- Spielerbewegung: WASD, Jetpack-boost (Shift)
+- Umschauen: Mausbewegung
+- Kameras: Orthographisch (R), First-person (V), Third-person (F), Zoom (Mausrad)
+- Shaderwechsel: Standard (1), Toon (2), Monochrom rot (3)
 
 Rendering
 - Erstellen von eigenen 3D-Objekten (mittels Blender): Spieler, Asteroiden, Spaceshuttle, Items (Domenic)
