@@ -96,6 +96,7 @@ class Scene(private val window: GameWindow) {
     val jetFuelTimeOutBufferQuot = 4
     var fuelAmount = maxFuelAmount
 
+    //ufo movement
     var accTransValue = 0f
     var transFactor = 0.1f
 
@@ -105,16 +106,19 @@ class Scene(private val window: GameWindow) {
 
     var bigFlameRender : Boolean = false
 
-
+    // vertical camera movement (FP)
     val camFPMax =  35f
     val camFPMin = -35f
     var verticalFPCameraPos = 0f
 
+    // life system values
     val lifehearts = mutableListOf<Renderable>()
     val hitCoolDownMax = 0.5f
     var hitCoolDownTimer = hitCoolDownMax
     var timerActive = false
 
+    //start- and gameover screen and endscreen sequence values
+    var isStartscreen = true
     var gameOver = false
     var repairTimer = 2f
     var repair = false
@@ -124,17 +128,15 @@ class Scene(private val window: GameWindow) {
     var flyBackHomeTimer = 1f
     var gameEndTimer = 4f
     var gameEnd = false
+    private var outro = false
 
+    //rng parameters for item and ufo spawn
     val randomMax =  50
     val randomMin = -30
     var randomSpawnPoint = Vector3f()
     val ufoMax =  10
     val ufoMin = -10
 
-    private var outro = false
-
-    //start- and endscreen
-    var isStartscreen = true
 
     //scene setup
     init {
@@ -329,7 +331,7 @@ class Scene(private val window: GameWindow) {
         moon.scaleLocal(Vector3f(10f))
         moon.translateLocal(Vector3f(0f,0f,10f))
 
-
+        pointLight4.parent = items[0]
         pointLight.parent = items[1]
         pointLight2.parent = items[2]
         pointLight3.parent = firstPersonCamera
@@ -452,12 +454,14 @@ class Scene(private val window: GameWindow) {
 
     fun update(dt: Float, t: Float) {
 
+        // movement of celestial bodies
         earth.rotateLocal(0f, 0.05f * dt,0f)
         moon.rotateAroundPoint(0f, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateAroundPoint(0.05f * dt, 0.05f * -dt, 0f, Vector3f(0f))
         moon.rotateLocal(0f,0.05f * dt,0f)
         saturn.rotateLocal(0.01f *dt,0.2f *dt, 0f)
 
+        //texture translation of flame objects
         shuttleFlame.translateTexture(Vector2f(15f*dt,0f))
         smallFlame.translateTexture(Vector2f(15f*dt,0f))
         bigFlame.translateTexture(Vector2f(15*dt,0f))
@@ -469,6 +473,7 @@ class Scene(private val window: GameWindow) {
 
         if (!outro && !gameOver && !isStartscreen) for (a in listOfAsteroids) a.update(dt)
 
+        // outro Sequence
         if (collisionAstronaut.checkCollision(Pair(shuttleDestroyed, Vector2f(2f,5f))) && items.isEmpty()) {
             outro = true
             repair = true
@@ -489,7 +494,7 @@ class Scene(private val window: GameWindow) {
         if (flyBackHome){
             if (startEngineTimer > 0) {
                 startEngineTimer-= 2*dt
-                println(startEngineTimer)
+
             }
             else {
                 if (flyBackHomeTimer <= 0) {
@@ -519,6 +524,7 @@ class Scene(private val window: GameWindow) {
 
         }
 
+        // life system
         if (timerActive)
             if (hitCoolDownTimer > 0) hitCoolDownTimer-=dt
             else {
@@ -646,7 +652,7 @@ class Scene(private val window: GameWindow) {
 
         }
 
-
+        // item pickup and shader change logic
         if (!outro) {
             if (items.isNotEmpty()) {
                 if (collisionAstronaut.checkCollision(Pair(items[0], Vector2f(0.6f)))) {
@@ -662,9 +668,9 @@ class Scene(private val window: GameWindow) {
 
             }
             else {
-
                 currentShader = tronShader
                 currentSkyboxShader = skyBoxShader
+                pointLight4.lightColor = Vector3f(0f)
 
             }
 
@@ -697,6 +703,7 @@ class Scene(private val window: GameWindow) {
             }
             val adjustedDeltaY = deltaY.toFloat() * -0.02f
 
+            // vertical camera movement
             if (currentCamera == firstPersonCamera) {
                 when{
                     verticalFPCameraPos > camFPMin && verticalFPCameraPos < camFPMax -> {

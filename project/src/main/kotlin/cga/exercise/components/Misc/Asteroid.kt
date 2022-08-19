@@ -29,8 +29,6 @@ class Asteroid (val player: Renderable, val collision: Collision, val asteroid :
             hit = true
             hitDir = player.getWorldPosition().sub(asteroid.first.getWorldPosition().sub(toPlayer))
             num = hitDir.length()* 0.5f
-            println(num)
-            println(hitDir)
             reset()
         }
         else if (hit) {
