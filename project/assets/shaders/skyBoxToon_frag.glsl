@@ -7,7 +7,7 @@ uniform samplerCube skybox;
 
 float cellValue(float value, int numberOfLvls) {
     float cell;
-    float currentLvl = numberOfLvls;
+    float currentLvl = 1.0;
     float step = 1.0 / numberOfLvls;
     while (currentLvl > 0) {
         if (value > currentLvl - step) {
